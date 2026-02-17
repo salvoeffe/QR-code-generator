@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Header from '@/components/Header';
 
 export const metadata = {
   title: 'Privacy Policy | QR Code Generator',
@@ -8,24 +9,10 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <nav className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-            QR Code Generator
-          </Link>
-          <div className="flex gap-6">
-            <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
-              Blog
-            </Link>
-            <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
-              About
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <Header />
 
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">Privacy Policy</h1>
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">Privacy Policy</h1>
         <p className="text-zinc-600 dark:text-zinc-400 mb-6">Last updated: {new Date().toLocaleDateString('en-US')}</p>
 
         <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">

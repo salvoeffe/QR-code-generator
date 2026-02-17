@@ -21,6 +21,7 @@ export default function CookieConsentBanner() {
         color: '#fff',
         padding: '0.5rem 1rem',
         borderRadius: '0.5rem',
+        transition: 'background 0.2s',
       }}
       declineButtonStyle={{
         background: 'transparent',

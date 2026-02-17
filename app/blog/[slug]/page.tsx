@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPosts } from '@/lib/posts';
 import { ArticleJsonLd } from '@/components/JsonLd';
+import Header from '@/components/Header';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { readFile } from 'fs/promises';
 import path from 'path';
@@ -60,28 +61,14 @@ export default async function BlogPostPage({
         datePublished={post.date}
         url={`${baseUrl}/blog/${post.slug}`}
       />
-      <header className="border-b border-zinc-200 dark:border-zinc-800">
-        <nav className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-            QR Code Generator
-          </Link>
-          <div className="flex gap-6">
-            <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
-              Blog
-            </Link>
-            <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
-              About
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <Header />
 
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        <Link href="/blog" className="text-emerald-600 hover:underline text-sm mb-6 inline-block">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <Link href="/blog" className="text-emerald-600 hover:text-emerald-700 hover:underline text-sm mb-6 inline-block transition-colors duration-200">
           ← Back to Blog
         </Link>
         <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
           <time
             dateTime={post.date}
             className="text-zinc-500 text-sm block mb-8"
