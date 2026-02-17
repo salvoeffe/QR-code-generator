@@ -36,6 +36,9 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
           <span>© {new Date().getFullYear()} QR Code Generator. All rights reserved.</span>
           <div className="flex gap-6">
+            <Link href="/faq" className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
+              FAQ
+            </Link>
             <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
               Privacy Policy
             </Link>

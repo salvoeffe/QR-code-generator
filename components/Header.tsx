@@ -26,6 +26,12 @@ export default function Header() {
             Blog
           </Link>
           <Link
+            href="/faq"
+            className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors py-1 min-h-[44px] min-w-[44px] flex items-center sm:min-h-0 sm:min-w-0"
+          >
+            FAQ
+          </Link>
+          <Link
             href="/about"
             className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors py-1 min-h-[44px] min-w-[44px] flex items-center sm:min-h-0 sm:min-w-0"
           >

@@ -42,6 +42,60 @@ const posts: PostMeta[] = [
     description: 'Stay safe when scanning QR codes. Learn what to look for and what to avoid.',
     date: '2024-12-25',
   },
+  {
+    slug: 'state-of-qr-codes-2026',
+    title: 'The State of QR Codes in 2026',
+    description: 'Where QR codes stand today: ubiquity, trends, and why static codes still win for most use cases.',
+    date: '2026-02-15',
+  },
+  {
+    slug: 'why-qr-code-not-scanning',
+    title: 'Why Is My QR Code Not Scanning?',
+    description: 'Common reasons your QR code won\'t scan and how to fix them: size, contrast, damage, and more.',
+    date: '2026-02-14',
+  },
+  {
+    slug: 'static-vs-dynamic-qr-codes',
+    title: 'Static vs Dynamic QR Codes: Which One Do You Need?',
+    description: 'Compare static and dynamic QR codes. Learn when to use each and which fits your use case.',
+    date: '2026-02-13',
+  },
+  {
+    slug: 'qr-codes-real-estate',
+    title: 'QR Codes for Real Estate Signs: A Practical Guide',
+    description: 'How real estate agents use QR codes on signs to drive traffic to listings and capture leads.',
+    date: '2026-02-12',
+  },
+  {
+    slug: 'creative-qr-code-marketing-ideas',
+    title: 'Creative QR Code Marketing Ideas',
+    description: 'Beyond menus and business cards: packaging, events, print ads, and more ways to use QR codes in marketing.',
+    date: '2026-02-11',
+  },
+  {
+    slug: 'qr-code-wifi',
+    title: 'How to Create a QR Code for Wi-Fi',
+    description: 'Let guests connect to your Wi-Fi with one scan. Simple format and setup guide.',
+    date: '2026-02-10',
+  },
+  {
+    slug: 'qr-codes-restaurants',
+    title: 'QR Codes for Restaurants: Menus and Contactless Ordering',
+    description: 'How restaurants use QR codes for menus, ordering, and contactless service.',
+    date: '2026-02-09',
+  },
+  {
+    slug: 'free-vs-paid-qr-generators',
+    title: 'Free vs Paid QR Code Generators: When Does Paid Make Sense?',
+    description: 'Compare free and paid QR generators. Learn when free is enough and when to consider paid options.',
+    date: '2026-02-08',
+  },
+  {
+    slug: 'qr-codes-events',
+    title: 'QR Codes for Events: Badges, Tickets, and More',
+    description: 'Use QR codes for event check-in, badges, session materials, and sponsor engagement.',
+    date: '2026-02-07',
+  },
 ];
 
 export async function getPosts(): Promise<PostMeta[]> {

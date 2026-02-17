@@ -3,7 +3,7 @@ import { getPosts } from '@/lib/posts';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
-const staticPages = ['', '/blog', '/privacy', '/terms', '/about'];
+const staticPages = ['', '/blog', '/faq', '/privacy', '/terms', '/about'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPosts();

@@ -1,0 +1,42 @@
+# How to Create a QR Code for Wi-Fi
+
+Let guests connect to your Wi-Fi with one scan—no typing long passwords.
+
+## The Wi-Fi QR Format
+
+Wi-Fi QR codes use a special format that phones recognize: when you scan, the device offers to join the network automatically. The format looks like:
+
+```
+WIFI:T:WPA;S:YourNetworkName;P:YourPassword;;
+```
+
+- `T:WPA` — encryption type (WPA, WEP, or leave empty for open networks)
+- `S:NetworkName` — your Wi-Fi SSID
+- `P:Password` — the Wi-Fi password
+
+## How to Create One
+
+1. Open our [free QR code generator](/)
+2. Enter the Wi-Fi string. Example for a network named "MyHome" with password "SecretPass123":
+   ```
+   WIFI:T:WPA;S:MyHome;P:SecretPass123;;
+   ```
+3. Generate and download the QR code
+4. Print it or display it on a screen where guests can scan
+
+## Encryption Types
+
+- **WPA/WPA2:** `WIFI:T:WPA;S:SSID;P:password;;`
+- **WEP:** `WIFI:T:WEP;S:SSID;P:password;;`
+- **Open (no password):** `WIFI:T:nopass;S:SSID;P:;;`
+
+Most home and business networks use WPA or WPA2.
+
+## Tips for Use
+
+- **Place it visibly:** On a table tent, wall sign, or welcome sheet
+- **Size:** At least 1.5 inches per side so phones can scan easily
+- **Security:** Anyone with access to the printed code can connect. Use a guest network if possible
+- **Test first:** Scan with your own phone to confirm it works before placing in a public area
+
+[Create your Wi-Fi QR code now](/).
