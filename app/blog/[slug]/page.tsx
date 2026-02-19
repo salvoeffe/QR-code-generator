@@ -54,7 +54,7 @@ export default async function BlogPostPage({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen">
       <ArticleJsonLd
         title={post.title}
         description={post.description}
@@ -67,7 +67,7 @@ export default async function BlogPostPage({
         <Link href="/blog" className="text-emerald-600 hover:text-emerald-700 hover:underline text-sm mb-6 inline-block transition-colors duration-200">
           ← Back to Blog
         </Link>
-        <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
+        <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
           <time
             dateTime={post.date}

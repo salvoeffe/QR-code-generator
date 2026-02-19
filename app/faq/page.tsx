@@ -9,16 +9,16 @@ export const metadata = {
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen">
       <Header />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8 tracking-tight">
           Frequently Asked Questions
         </h1>
 
-        <div className="space-y-8">
-          <section>
+        <div className="space-y-4">
+          <section className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               Are these QR codes safe? Does this site track my data?
             </h2>
@@ -33,7 +33,7 @@ export default function FAQPage() {
             </p>
           </section>
 
-          <section>
+          <section className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               How long does a QR code last?
             </h2>
@@ -45,7 +45,7 @@ export default function FAQPage() {
             </p>
           </section>
 
-          <section>
+          <section id="why-not-scanning" className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               Why is my QR code not scanning?
             </h2>
@@ -72,7 +72,7 @@ export default function FAQPage() {
             </ul>
           </section>
 
-          <section>
+          <section className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               What is the difference between static and dynamic QR codes?
             </h2>
@@ -89,7 +89,7 @@ export default function FAQPage() {
             </p>
           </section>
 
-          <section>
+          <section className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               Is this QR code generator really free?
             </h2>
@@ -99,7 +99,7 @@ export default function FAQPage() {
             </p>
           </section>
 
-          <section>
+          <section className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               What file format do I get?
             </h2>
@@ -110,7 +110,7 @@ export default function FAQPage() {
           </section>
         </div>
 
-        <div className="mt-12 p-4 rounded-xl bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700">
+        <div className="mt-12 rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6">
           <p className="text-zinc-600 dark:text-zinc-400 text-sm">
             Ready to create your QR code?{' '}
             <Link href="/" className="text-emerald-600 font-medium hover:underline">

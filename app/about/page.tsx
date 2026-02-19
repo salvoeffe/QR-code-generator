@@ -8,13 +8,14 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen">
       <Header />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">About</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8 tracking-tight">About</h1>
 
-        <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">
+        <div className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6 md:p-8">
+          <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
             QR Code Generator is a free, simple web tool that lets anyone create QR codes instantly. Enter a URL or text,
             and get a downloadable PNG image—no sign-up, no fees.
@@ -63,6 +64,7 @@ export default function AboutPage() {
               for details on how we handle your data and your use of the service.
             </p>
           </section>
+          </div>
         </div>
       </main>
     </div>

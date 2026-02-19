@@ -11,11 +11,11 @@ export default async function BlogPage() {
   const posts = await getPosts();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen">
       <Header />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">Blog</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 tracking-tight">Blog</h1>
         <p className="text-zinc-600 dark:text-zinc-400 mb-12">
           Tips, guides, and best practices for creating and using QR codes.
         </p>
@@ -23,10 +23,10 @@ export default async function BlogPage() {
         <ul className="space-y-4">
           {posts.map((post) => (
             <li key={post.slug}>
-              <article>
+              <article className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 overflow-hidden transition-shadow duration-200 hover:shadow-[var(--shadow-md)]">
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="block group p-4 -mx-4 rounded-xl hover:bg-white/50 dark:hover:bg-zinc-900/50 transition-colors duration-200"
+                  className="block group p-5 sm:p-6 min-h-[44px]"
                 >
                   <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-600 transition-colors duration-200">
                     {post.title}

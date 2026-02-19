@@ -8,14 +8,15 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen">
       <Header />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-8">Privacy Policy</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">Privacy Policy</h1>
         <p className="text-zinc-600 dark:text-zinc-400 mb-6">Last updated: {new Date().toLocaleDateString('en-US')}</p>
 
-        <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">
+        <div className="rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 sm:p-6 md:p-8">
+          <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">
           <section>
             <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mt-8 mb-4">1. Introduction</h2>
             <p className="text-zinc-600 dark:text-zinc-400">
@@ -101,6 +102,7 @@ export default function PrivacyPage() {
               page for contact information.
             </p>
           </section>
+          </div>
         </div>
       </main>
     </div>

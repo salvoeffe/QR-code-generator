@@ -4,6 +4,20 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Surfaces (cards, elevated areas) */
+  --surface: #f4f4f5;
+  --surface-elevated: #ffffff;
+  /* iOS-style soft shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 20px 40px -10px rgba(0, 0, 0, 0.06);
+  /* Radii */
+  --radius-card: 1rem;
+  --radius-input: 0.875rem;
+  --radius-button: 0.625rem;
+  /* Site-wide gradient (subtle top-to-bottom) */
+  --gradient-start: #fafafa;
+  --gradient-end: #ffffff;
 }
 
 @theme inline {
@@ -15,8 +29,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #18181b;
     --foreground: #ededed;
+    --surface: #27272a;
+    --surface-elevated: #3f3f46;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+    --gradient-start: #09090b;
+    --gradient-end: #18181b;
   }
 }
 
@@ -36,10 +57,13 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(to bottom, var(--gradient-start), var(--gradient-end));
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Subtle focus ring for accessibility */

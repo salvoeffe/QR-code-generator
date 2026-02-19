@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const sizeParam = searchParams.get('size');
-    const width = sizeParam ? Math.min(512, Math.max(128, parseInt(sizeParam, 10) || 256)) : 256;
+    const width = sizeParam ? Math.min(1024, Math.max(128, parseInt(sizeParam, 10) || 256)) : 256;
 
     const png = await QRCode.toBuffer(text, {
       type: 'png',
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const width = typeof body?.width === 'number' ? Math.min(512, Math.max(128, body.width)) : 256;
+    const width = typeof body?.width === 'number' ? Math.min(1024, Math.max(128, body.width)) : 256;
 
     const png = await QRCode.toBuffer(text, {
       type: 'png',
