@@ -113,6 +113,18 @@ const posts: PostMeta[] = [
     category: 'Industry Guides',
   },
   {
+    slug: 'restaurant-qr-code-menu-guide-2026',
+    title: 'The 2026 Restaurant Guide to QR Code Menus: Faster Service, Higher Margins',
+    description: 'Cut labor costs and update prices instantly with QR code menus. Design, placement, and scannability for bars, bistros, and cafes.',
+    date: '2026-02-20',
+    category: 'Industry Guides',
+    faq: [
+      { question: 'Do I need an app to read a menu QR?', answer: 'No. Every smartphone camera reads QR codes natively. Guests point, scan, and the menu opens in the browser. No app download required.' },
+      { question: 'How do I update my menu prices without changing the QR?', answer: 'If your QR code points to a hosted PDF or webpage, you update the file or page—not the code. The URL stays the same, so the QR code stays the same. Re-upload the PDF or edit the page, and every table gets the new menu.' },
+      { question: 'Is a PDF menu better than a website menu?', answer: 'It depends. A PDF is easier: design once, upload, done. A webpage can load faster and adapt to screen size, but requires more setup. For most restaurants, a well-designed PDF hosted on Google Drive, Dropbox, or your website is the simplest and most reliable option.' },
+    ],
+  },
+  {
     slug: 'free-vs-paid-qr-generators',
     title: 'Free vs Paid QR Code Generators: When Does Paid Make Sense?',
     description: 'Compare free and paid QR generators. Learn when free is enough and when to consider paid options.',

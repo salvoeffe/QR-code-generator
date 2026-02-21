@@ -102,3 +102,31 @@ body {
 .qr-result-animate {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Blog typography and spacing */
+.blog-prose {
+  --blog-content-max-width: 65ch;
+  line-height: 1.75;
+}
+
+.blog-prose .blog-content p {
+  margin-bottom: 1.25em;
+}
+
+.blog-prose .blog-content h2 {
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  letter-spacing: -0.02em;
+}
+
+.blog-prose .blog-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  letter-spacing: -0.015em;
+}
+
+.blog-prose .blog-content ul,
+.blog-prose .blog-content ol {
+  margin-top: 1em;
+  margin-bottom: 1.25em;
+}

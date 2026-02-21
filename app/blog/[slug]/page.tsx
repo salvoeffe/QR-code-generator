@@ -6,11 +6,40 @@ import { ArticleJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import Header from '@/components/Header';
 import CreateQRCodeSidebar from '@/components/CreateQRCodeSidebar';
 import RelatedPosts from '@/components/RelatedPosts';
+import ShareButtons from '@/components/ShareButtons';
+import TableOfContents from '@/components/TableOfContents';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+function slugifyHeading(text: string): string {
+  return text
+    .replace(/^[\d.]+\s*/, '')
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
+function extractHeadings(content: string): { id: string; text: string; level: 2 | 3 }[] {
+  const lines = content.split('\n');
+  const headings: { id: string; text: string; level: 2 | 3 }[] = [];
+  for (const line of lines) {
+    const h2Match = line.match(/^##\s+(.+)$/);
+    const h3Match = line.match(/^###\s+(.+)$/);
+    if (h2Match) {
+      const text = h2Match[1].trim();
+      headings.push({ id: slugifyHeading(text), text, level: 2 });
+    } else if (h3Match) {
+      const text = h3Match[1].trim();
+      headings.push({ id: slugifyHeading(text), text, level: 3 });
+    }
+  }
+  return headings;
+}
 
 function stripDuplicateH1(content: string): string {
   const firstLineMatch = content.match(/^#\s+.+$/m);
@@ -67,6 +96,7 @@ export default async function BlogPostPage({
   }
 
   const relatedPosts = await getRelatedPosts(slug);
+  const headings = extractHeadings(content);
 
   return (
     <div className="min-h-screen">
@@ -81,17 +111,17 @@ export default async function BlogPostPage({
       )}
       <Header />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
           <div className="min-w-0">
             <Link href="/blog" className="text-emerald-600 hover:text-emerald-700 hover:underline text-sm mb-6 inline-block transition-colors duration-200">
               ← Back to Blog
             </Link>
-            <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
+            <article className="blog-prose prose prose-lg prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
               <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
               <time
                 dateTime={post.date}
-                className="text-zinc-500 text-sm block mb-8"
+                className="text-zinc-500 text-sm block mb-4"
               >
                 {new Date(post.date).toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -99,10 +129,47 @@ export default async function BlogPostPage({
                   day: 'numeric',
                 })}
               </time>
-              <div className="blog-content">
+              <ShareButtons
+                url={`${baseUrl}/blog/${slug}`}
+                title={post.title}
+                description={post.description}
+              />
+              <div className="blog-content mt-10">
                 <MDXRemote
                   source={stripDuplicateH1(content)}
                   components={{
+                    h2: ({ children, ...props }) => {
+                      const text =
+                        typeof children === 'string'
+                          ? children
+                          : Array.isArray(children)
+                            ? children
+                                .map((c) => (typeof c === 'string' ? c : ''))
+                                .join('')
+                            : String(children ?? '');
+                      const id = slugifyHeading(text);
+                      return (
+                        <h2 id={id} className="scroll-mt-24" {...props}>
+                          {children}
+                        </h2>
+                      );
+                    },
+                    h3: ({ children, ...props }) => {
+                      const text =
+                        typeof children === 'string'
+                          ? children
+                          : Array.isArray(children)
+                            ? children
+                                .map((c) => (typeof c === 'string' ? c : ''))
+                                .join('')
+                            : String(children ?? '');
+                      const id = slugifyHeading(text);
+                      return (
+                        <h3 id={id} className="scroll-mt-24" {...props}>
+                          {children}
+                        </h3>
+                      );
+                    },
                     img: ({ src, alt, ...props }) => {
                       if (!src) return null;
                       const altText = alt ?? '';
@@ -158,7 +225,8 @@ export default async function BlogPostPage({
               <RelatedPosts posts={relatedPosts} currentSlug={slug} />
             </article>
           </div>
-          <div>
+          <div className="space-y-6">
+            <TableOfContents headings={headings} />
             <CreateQRCodeSidebar />
           </div>
         </div>
