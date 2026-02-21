@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getPostBySlug, getPosts } from '@/lib/posts';
 import { ArticleJsonLd } from '@/components/JsonLd';
 import Header from '@/components/Header';
+import CreateQRCodeSidebar from '@/components/CreateQRCodeSidebar';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { readFile } from 'fs/promises';
 import path from 'path';
@@ -63,45 +64,52 @@ export default async function BlogPostPage({
       />
       <Header />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <Link href="/blog" className="text-emerald-600 hover:text-emerald-700 hover:underline text-sm mb-6 inline-block transition-colors duration-200">
-          ← Back to Blog
-        </Link>
-        <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
-          <time
-            dateTime={post.date}
-            className="text-zinc-500 text-sm block mb-8"
-          >
-            {new Date(post.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </time>
-          <div className="blog-content">
-            <MDXRemote
-              source={content}
-              components={{
-                a: ({ href, children, ...props }) => {
-                  const isExternal = href?.startsWith('http');
-                  if (isExternal) {
-                    return (
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline" {...props}>
-                        {children}
-                      </a>
-                    );
-                  }
-                  return (
-                    <Link href={href || '#'} className="text-emerald-600 hover:underline" {...props}>
-                      {children}
-                    </Link>
-                  );
-                },
-              }}
-            />
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
+          <div className="min-w-0">
+            <Link href="/blog" className="text-emerald-600 hover:text-emerald-700 hover:underline text-sm mb-6 inline-block transition-colors duration-200">
+              ← Back to Blog
+            </Link>
+            <article className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
+              <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">{post.title}</h1>
+              <time
+                dateTime={post.date}
+                className="text-zinc-500 text-sm block mb-8"
+              >
+                {new Date(post.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              <div className="blog-content">
+                <MDXRemote
+                  source={content}
+                  components={{
+                    a: ({ href, children, ...props }) => {
+                      const isExternal = href?.startsWith('http');
+                      if (isExternal) {
+                        return (
+                          <a href={href} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline" {...props}>
+                            {children}
+                          </a>
+                        );
+                      }
+                      return (
+                        <Link href={href || '#'} className="text-emerald-600 hover:underline" {...props}>
+                          {children}
+                        </Link>
+                      );
+                    },
+                  }}
+                />
+              </div>
+            </article>
           </div>
-        </article>
+          <div>
+            <CreateQRCodeSidebar />
+          </div>
+        </div>
       </main>
     </div>
   );
