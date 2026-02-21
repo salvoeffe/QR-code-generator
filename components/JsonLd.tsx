@@ -27,11 +27,13 @@ export function ArticleJsonLd({
   title,
   description,
   datePublished,
+  dateModified,
   url,
 }: {
   title: string;
   description: string;
   datePublished: string;
+  dateModified?: string;
   url: string;
 }) {
   const jsonLd = {
@@ -40,12 +42,54 @@ export function ArticleJsonLd({
     headline: title,
     description,
     datePublished,
+    dateModified: dateModified ?? datePublished,
     url,
+    author: {
+      '@type': 'Person',
+      name: 'QR Code Generator',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'QR Code Generator',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/favicon.ico`,
+      },
+    },
+    image: `${siteUrl}/favicon.ico`,
   };
 
   return (
     <Script
       id="article-jsonld"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      strategy="afterInteractive"
+    />
+  );
+}
+
+export function FAQJsonLd({
+  items,
+}: {
+  items: { question: string; answer: string }[];
+}) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer,
+      },
+    })),
+  };
+
+  return (
+    <Script
+      id="faq-jsonld"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       strategy="afterInteractive"

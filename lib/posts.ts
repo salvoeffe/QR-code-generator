@@ -7,6 +7,7 @@ export type PostMeta = {
   date: string;
   category: Category;
   featured?: boolean;
+  faq?: { question: string; answer: string }[];
 };
 
 const posts: PostMeta[] = [
@@ -65,6 +66,15 @@ const posts: PostMeta[] = [
     description: 'Common reasons your QR code won\'t scan and how to fix them: size, contrast, damage, and more.',
     date: '2026-02-14',
     category: 'Troubleshooting',
+    faq: [
+      { question: 'Why is my QR code too small to scan?', answer: 'QR codes need a minimum size to be readable. For print, aim for at least 1 inch (2.5 cm) per side. For digital use, 200×200 pixels minimum. Use 384px or 512px for print projects.' },
+      { question: 'Does contrast affect QR code scanning?', answer: 'Yes. Use black or very dark modules on a white or light background. Avoid light gray on white or dark gray on black. Low contrast causes scan failures.' },
+      { question: 'Can damage or covered areas prevent scanning?', answer: 'Scratches, folds, or anything covering part of the code can prevent scanning. The quiet zone (white margin) is critical. Keep a clear margin and don\'t add logos or text over the pattern.' },
+      { question: 'What if the QR code scans but the link fails?', answer: 'Double-check the URL before generating. Test in a browser. Ensure the website is live and doesn\'t require login. Avoid very long URLs when possible.' },
+      { question: 'Do lighting and angle affect QR scanning?', answer: 'Glare, shadows, or extreme angles can prevent the camera from reading the code. Ensure good, even lighting and hold the camera straight-on.' },
+      { question: 'Can blurry print prevent QR code scanning?', answer: 'Yes. Export at sufficient resolution (512px for print). Use 300 DPI or higher. Don\'t stretch or resize a small image to large format.' },
+      { question: 'Could my phone or app cause scanning issues?', answer: 'Try a different phone or the built-in camera app. Ensure the lens is clean. Test with a known-good code to confirm your device works.' },
+    ],
   },
   {
     slug: 'static-vs-dynamic-qr-codes',
@@ -141,4 +151,23 @@ export async function getPostsByCategory(): Promise<Map<Category, PostMeta[]>> {
     map.set(category, categoryPosts);
   }
   return map;
+}
+
+export async function getRelatedPosts(
+  currentSlug: string,
+  limit: number = 4
+): Promise<PostMeta[]> {
+  const current = posts.find((p) => p.slug === currentSlug);
+  if (!current) return [];
+
+  const sameCategory = posts
+    .filter((p) => p.slug !== currentSlug && p.category === current.category)
+    .sort((a, b) => (b.date > a.date ? 1 : -1));
+
+  const otherCategory = posts
+    .filter((p) => p.slug !== currentSlug && p.category !== current.category)
+    .sort((a, b) => (b.date > a.date ? 1 : -1));
+
+  const related = [...sameCategory, ...otherCategory];
+  return related.slice(0, limit);
 }

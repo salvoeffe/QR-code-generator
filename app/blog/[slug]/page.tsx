@@ -1,14 +1,26 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getPostBySlug, getPosts } from '@/lib/posts';
-import { ArticleJsonLd } from '@/components/JsonLd';
+import { getPostBySlug, getPosts, getRelatedPosts } from '@/lib/posts';
+import { ArticleJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import Header from '@/components/Header';
 import CreateQRCodeSidebar from '@/components/CreateQRCodeSidebar';
+import RelatedPosts from '@/components/RelatedPosts';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+function stripDuplicateH1(content: string): string {
+  const firstLineMatch = content.match(/^#\s+.+$/m);
+  if (firstLineMatch) {
+    const firstLine = firstLineMatch[0];
+    const rest = content.slice(firstLine.length).replace(/^\s*\n/, '');
+    return rest;
+  }
+  return content;
+}
 
 export async function generateStaticParams() {
   const posts = await getPosts();
@@ -54,6 +66,8 @@ export default async function BlogPostPage({
     notFound();
   }
 
+  const relatedPosts = await getRelatedPosts(slug);
+
   return (
     <div className="min-h-screen">
       <ArticleJsonLd
@@ -62,6 +76,9 @@ export default async function BlogPostPage({
         datePublished={post.date}
         url={`${baseUrl}/blog/${post.slug}`}
       />
+      {post.faq && post.faq.length > 0 && (
+        <FAQJsonLd items={post.faq} />
+      )}
       <Header />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -84,8 +101,42 @@ export default async function BlogPostPage({
               </time>
               <div className="blog-content">
                 <MDXRemote
-                  source={content}
+                  source={stripDuplicateH1(content)}
                   components={{
+                    img: ({ src, alt, ...props }) => {
+                      if (!src) return null;
+                      const altText = alt ?? '';
+                      if (process.env.NODE_ENV === 'development' && !alt) {
+                        console.warn('MDX image missing alt text:', src);
+                      }
+                      if (src.startsWith('/') && (src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.webp') || src.endsWith('.svg'))) {
+                        const isSquare = src.endsWith('.svg');
+                        return (
+                          <span className="block my-6">
+                            <Image
+                              src={src}
+                              alt={altText}
+                              width={isSquare ? 400 : 672}
+                              height={isSquare ? 400 : 378}
+                              className="rounded-lg w-full h-auto max-w-md"
+                              loading="lazy"
+                              {...props}
+                            />
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="block my-6">
+                          <img
+                            src={src}
+                            alt={altText}
+                            className="rounded-lg w-full h-auto"
+                            loading="lazy"
+                            {...props}
+                          />
+                        </span>
+                      );
+                    },
                     a: ({ href, children, ...props }) => {
                       const isExternal = href?.startsWith('http');
                       if (isExternal) {
@@ -104,6 +155,7 @@ export default async function BlogPostPage({
                   }}
                 />
               </div>
+              <RelatedPosts posts={relatedPosts} currentSlug={slug} />
             </article>
           </div>
           <div>
