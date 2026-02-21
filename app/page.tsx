@@ -2,12 +2,16 @@ import Link from 'next/link';
 import QRGenerator from '@/components/QRGenerator';
 import HowToUseSection from '@/components/HowToUseSection';
 import HomepageFAQAccordion from '@/components/HomepageFAQAccordion';
+import LatestGuides from '@/components/LatestGuides';
 import { WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import AdUnit from '@/components/AdUnit';
 import Header from '@/components/Header';
 import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
+import { getPosts } from '@/lib/posts';
 
-export default function Home() {
+export default async function Home() {
+  const allPosts = await getPosts();
+  const latestPosts = allPosts.slice(0, 3);
   return (
     <div className="min-h-screen relative">
       <WebApplicationJsonLd />
@@ -45,6 +49,8 @@ export default function Home() {
         </div>
 
         <HomepageFAQAccordion items={TOP_HOMEPAGE_FAQS} />
+
+        <LatestGuides posts={latestPosts} />
 
         <section className="mt-12 sm:mt-16 text-center text-zinc-500 dark:text-zinc-500 text-sm">
           <p className="font-medium">100% free · No account needed · Your data stays in your browser</p>

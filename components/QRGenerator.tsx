@@ -39,6 +39,7 @@ export default function QRGenerator() {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [justDownloaded, setJustDownloaded] = useState(false);
+  const [justCopied, setJustCopied] = useState(false);
   const downloadSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const effectiveText = contentType === 'wifi'
@@ -119,6 +120,19 @@ export default function QRGenerator() {
       setError('Could not download SVG');
     }
   }, [effectiveText, hasContent, size, fgColor, bgColor]);
+
+  const handleCopyToClipboard = useCallback(async () => {
+    if (!qrUrl) return;
+    try {
+      const res = await fetch(qrUrl);
+      const blob = await res.blob();
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      setJustCopied(true);
+      setTimeout(() => setJustCopied(false), 2000);
+    } catch {
+      setError('Could not copy to clipboard');
+    }
+  }, [qrUrl]);
 
   useEffect(() => {
     return () => {
@@ -342,10 +356,26 @@ export default function QRGenerator() {
                 >
                   SVG
                 </button>
+                <button
+                  type="button"
+                  onClick={handleCopyToClipboard}
+                  disabled={!qrUrl || justCopied}
+                  className="px-5 py-2.5 min-h-[44px] rounded-xl border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-zinc-800"
+                >
+                  {justCopied ? 'Copied!' : 'Copy'}
+                </button>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
                 PNG for screens · SVG for print
               </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mt-2 pt-4 border-t border-zinc-200/60 dark:border-zinc-700/60 w-full max-w-xs">
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  100% Privacy: Your data never leaves your browser
+                </span>
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  No Expiration: Codes work forever
+                </span>
+              </div>
             </div>
           </div>
         )}
