@@ -14,6 +14,17 @@ function buildWifiString(ssid: string, password: string, auth: 'WPA' | 'WEP' | '
   return `WIFI:T:${auth};S:${s};P:${password};;`;
 }
 
+function buildQrUrl(text: string, width: number, fg: string, bg: string, format: 'png' | 'svg'): string {
+  const params = new URLSearchParams({
+    text,
+    size: String(width),
+    fg: fg.replace(/^#/, ''),
+    bg: bg.replace(/^#/, ''),
+  });
+  if (format === 'svg') params.set('format', 'svg');
+  return `/api/qr?${params.toString()}`;
+}
+
 export default function QRGenerator() {
   const [contentType, setContentType] = useState<ContentType>('url');
   const [input, setInput] = useState('');
@@ -24,6 +35,9 @@ export default function QRGenerator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState(256);
+  const [fgColor, setFgColor] = useState('#000000');
+  const [bgColor, setBgColor] = useState('#ffffff');
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [justDownloaded, setJustDownloaded] = useState(false);
   const downloadSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,7 +46,7 @@ export default function QRGenerator() {
     : input;
   const hasContent = contentType === 'wifi' ? wifiSsid.trim() !== '' : input.trim() !== '';
 
-  const generateQr = useCallback(async (text: string, width: number) => {
+  const generateQr = useCallback(async (text: string, width: number, fg: string, bg: string) => {
     if (!text.trim()) {
       setQrUrl(null);
       setError(null);
@@ -43,16 +57,17 @@ export default function QRGenerator() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/qr?text=${encodeURIComponent(text)}&size=${width}`);
+      const url = buildQrUrl(text, width, fg, bg, 'png');
+      const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to generate QR code');
       }
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      const objectUrl = URL.createObjectURL(blob);
       setQrUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
-        return url;
+        return objectUrl;
       });
     } catch (err) {
       setQrUrl(null);
@@ -70,13 +85,13 @@ export default function QRGenerator() {
     }
 
     const t = setTimeout(() => {
-      generateQr(effectiveText, size);
+      generateQr(effectiveText, size, fgColor, bgColor);
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(t);
-  }, [effectiveText, hasContent, size, generateQr]);
+  }, [effectiveText, hasContent, size, fgColor, bgColor, generateQr]);
 
-  const handleDownload = useCallback(() => {
+  const handleDownloadPng = useCallback(() => {
     if (!qrUrl) return;
     if (downloadSuccessTimerRef.current) clearTimeout(downloadSuccessTimerRef.current);
     const a = document.createElement('a');
@@ -86,6 +101,24 @@ export default function QRGenerator() {
     setJustDownloaded(true);
     downloadSuccessTimerRef.current = setTimeout(() => setJustDownloaded(false), 2500);
   }, [qrUrl]);
+
+  const handleDownloadSvg = useCallback(async () => {
+    if (!hasContent || !effectiveText.trim()) return;
+    try {
+      const url = buildQrUrl(effectiveText, size, fgColor, bgColor, 'svg');
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to generate SVG');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'qrcode.svg';
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      setError('Could not download SVG');
+    }
+  }, [effectiveText, hasContent, size, fgColor, bgColor]);
 
   useEffect(() => {
     return () => {
@@ -188,11 +221,74 @@ export default function QRGenerator() {
           ))}
           </div>
         </div>
+
+        <div>
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((o) => !o)}
+            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
+            aria-expanded={settingsOpen}
+          >
+            <svg
+              className={`w-4 h-4 transition-transform ${settingsOpen ? 'rotate-90' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            Settings
+          </button>
+          {settingsOpen && (
+            <div className="mt-3 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 space-y-4">
+              <div>
+                <label htmlFor="qr-fg" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">QR code color</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="qr-fg"
+                    type="color"
+                    value={fgColor}
+                    onChange={(e) => setFgColor(e.target.value)}
+                    className="h-9 w-14 cursor-pointer rounded border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-900"
+                  />
+                  <input
+                    type="text"
+                    value={fgColor}
+                    onChange={(e) => setFgColor(e.target.value)}
+                    className="w-24 px-2 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-mono text-zinc-900 dark:text-zinc-100"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="qr-bg" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Background color</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="qr-bg"
+                    type="color"
+                    value={bgColor}
+                    onChange={(e) => setBgColor(e.target.value)}
+                    className="h-9 w-14 cursor-pointer rounded border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-900"
+                  />
+                  <input
+                    type="text"
+                    value={bgColor}
+                    onChange={(e) => setBgColor(e.target.value)}
+                    className="w-24 px-2 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-mono text-zinc-900 dark:text-zinc-100"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3">
         <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">3. Download</p>
-        <div className="min-h-[200px] sm:min-h-[260px] md:min-h-[280px] md:sticky md:top-24 flex flex-col items-center justify-center rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-md)] border border-zinc-200/60 dark:border-zinc-700/60 p-6 transition-shadow duration-200">
+        <div className="min-h-[200px] sm:min-h-[260px] md:min-h-[280px] md:sticky md:top-24 flex flex-col rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-md)] border border-zinc-200/60 dark:border-zinc-700/60 overflow-hidden transition-shadow duration-200">
+        <div className="px-5 py-3 border-b border-zinc-200/60 dark:border-zinc-700/60 bg-zinc-50/50 dark:bg-zinc-800/30">
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Preview</h3>
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center p-6">
         {loading && (
           <div className="flex flex-col items-center gap-3 text-zinc-500">
             <img
@@ -220,24 +316,36 @@ export default function QRGenerator() {
             <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
               Scan with your phone to test. <a href="/faq#why-not-scanning" className="text-emerald-600 hover:underline">Not scanning?</a>
             </p>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               {justDownloaded && (
                 <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   Success!
                 </p>
               )}
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={justDownloaded}
-                className={`px-6 py-2.5 min-h-[44px] rounded-xl text-white font-medium transition-all duration-200 shadow-[var(--shadow-sm)] ${
-                  justDownloaded
-                    ? 'bg-emerald-500 cursor-default'
-                    : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'
-                }`}
-              >
-                {justDownloaded ? 'Downloaded!' : 'Download PNG'}
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadPng}
+                  disabled={justDownloaded}
+                  className={`px-5 py-2.5 min-h-[44px] rounded-xl text-white font-medium transition-all duration-200 shadow-[var(--shadow-sm)] ${
+                    justDownloaded
+                      ? 'bg-emerald-500 cursor-default'
+                      : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'
+                  }`}
+                >
+                  {justDownloaded ? 'Downloaded!' : 'PNG'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadSvg}
+                  className="px-5 py-2.5 min-h-[44px] rounded-xl border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 active:scale-[0.98]"
+                >
+                  SVG
+                </button>
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
+                PNG for screens · SVG for print
+              </p>
             </div>
           </div>
         )}
@@ -254,6 +362,7 @@ export default function QRGenerator() {
             </p>
           </div>
         )}
+        </div>
         </div>
       </div>
     </div>

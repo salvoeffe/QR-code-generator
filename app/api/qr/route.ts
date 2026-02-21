@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
 
 const MAX_TEXT_LENGTH = 2000;
+const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
+
+function parseColor(val: string | null, defaultVal: string): string {
+  if (!val) return defaultVal;
+  const normalized = val.startsWith('#') ? val : `#${val}`;
+  return HEX_REGEX.test(normalized) ? normalized : defaultVal;
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -24,12 +31,34 @@ export async function GET(request: NextRequest) {
   try {
     const sizeParam = searchParams.get('size');
     const width = sizeParam ? Math.min(1024, Math.max(128, parseInt(sizeParam, 10) || 256)) : 256;
+    const format = searchParams.get('format') === 'svg' ? 'svg' : 'png';
+    const fg = parseColor(searchParams.get('fg'), '#000000');
+    const bg = parseColor(searchParams.get('bg'), '#ffffff');
+
+    const options = {
+      margin: 2,
+      errorCorrectionLevel: 'M' as const,
+      color: { dark: fg, light: bg },
+    };
+
+    if (format === 'svg') {
+      const svg = await QRCode.toString(text, {
+        ...options,
+        type: 'svg',
+        width,
+      });
+      return new NextResponse(svg, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
 
     const png = await QRCode.toBuffer(text, {
+      ...options,
       type: 'png',
-      margin: 2,
       width,
-      errorCorrectionLevel: 'M',
     });
 
     return new NextResponse(new Uint8Array(png), {
@@ -67,12 +96,34 @@ export async function POST(request: NextRequest) {
     }
 
     const width = typeof body?.width === 'number' ? Math.min(1024, Math.max(128, body.width)) : 256;
+    const format = body?.format === 'svg' ? 'svg' : 'png';
+    const fg = parseColor(body?.fg, '#000000');
+    const bg = parseColor(body?.bg, '#ffffff');
+
+    const options = {
+      margin: 2,
+      errorCorrectionLevel: 'M' as const,
+      color: { dark: fg, light: bg },
+    };
+
+    if (format === 'svg') {
+      const svg = await QRCode.toString(text, {
+        ...options,
+        type: 'svg',
+        width,
+      });
+      return new NextResponse(svg, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
 
     const png = await QRCode.toBuffer(text, {
+      ...options,
       type: 'png',
-      margin: 2,
       width,
-      errorCorrectionLevel: 'M',
     });
 
     return new NextResponse(new Uint8Array(png), {
