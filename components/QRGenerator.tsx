@@ -196,7 +196,7 @@ export default function QRGenerator() {
         {loading && (
           <div className="flex flex-col items-center gap-3 text-zinc-500">
             <img
-              src="/icon.png"
+              src="/favicon.ico"
               alt=""
               className="h-12 w-12 animate-pulse"
             />
@@ -245,7 +245,7 @@ export default function QRGenerator() {
         {!qrUrl && !loading && !error && !hasContent && (
           <div className="flex flex-col items-center gap-4">
             <img
-              src="/icon.png"
+              src="/favicon.ico"
               alt=""
               className="h-16 w-16 opacity-30 dark:opacity-25"
             />

@@ -10,7 +10,7 @@ export default function Header() {
           className="flex items-center gap-2.5 text-xl font-semibold text-zinc-900 dark:text-zinc-100 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors duration-200 tracking-tight"
         >
           <Image
-            src="/icon.png"
+            src="/favicon.ico"
             alt=""
             width={32}
             height={32}
