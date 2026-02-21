@@ -71,8 +71,10 @@ export function ArticleJsonLd({
 
 export function FAQJsonLd({
   items,
+  id = 'faq-jsonld',
 }: {
   items: { question: string; answer: string }[];
+  id?: string;
 }) {
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -89,7 +91,7 @@ export function FAQJsonLd({
 
   return (
     <Script
-      id="faq-jsonld"
+      id={id}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       strategy="afterInteractive"

@@ -1,13 +1,17 @@
 import Link from 'next/link';
 import QRGenerator from '@/components/QRGenerator';
-import { WebApplicationJsonLd } from '@/components/JsonLd';
+import HowToUseSection from '@/components/HowToUseSection';
+import HomepageFAQAccordion from '@/components/HomepageFAQAccordion';
+import { WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import AdUnit from '@/components/AdUnit';
 import Header from '@/components/Header';
+import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
 
 export default function Home() {
   return (
     <div className="min-h-screen relative">
       <WebApplicationJsonLd />
+      <FAQJsonLd items={TOP_HOMEPAGE_FAQS} id="faq-homepage-jsonld" />
       {/* Optional hero accent: faint emerald glow at top */}
       <div
         className="absolute inset-0 top-0 left-0 right-0 h-[40vh] max-h-[320px] pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
@@ -33,10 +37,14 @@ export default function Home() {
 
         <QRGenerator />
 
+        <HowToUseSection />
+
         {/* Ad unit - add slot from AdSense dashboard after approval */}
         <div className="mt-10 sm:mt-12 flex justify-center">
           <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT} format="horizontal" className="w-full max-w-[728px]" />
         </div>
+
+        <HomepageFAQAccordion items={TOP_HOMEPAGE_FAQS} />
 
         <section className="mt-12 sm:mt-16 text-center text-zinc-500 dark:text-zinc-500 text-sm">
           <p className="font-medium">100% free · No account needed · Your data stays in your browser</p>
