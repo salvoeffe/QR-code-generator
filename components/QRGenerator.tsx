@@ -6,7 +6,7 @@ const DEBOUNCE_MS = 400;
 const PREVIEW_MAX_SIZE = 512;
 const SIZES = [256, 384, 512, 1024, 2048, 4096];
 
-type ContentType = 'url' | 'text' | 'wifi' | 'vcard';
+type ContentType = 'url' | 'text' | 'wifi' | 'vcard' | 'whatsapp' | 'sms';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[\d\s\-+().]+$/;
@@ -47,6 +47,19 @@ function buildWifiString(ssid: string, password: string, auth: 'WPA' | 'WEP' | '
   if (!s) return '';
   if (auth === 'nopass') return `WIFI:T:nopass;S:${s};;`;
   return `WIFI:T:${auth};S:${s};P:${password};;`;
+}
+
+function buildWhatsAppString(phone: string, message: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  const base = `https://wa.me/${digits}`;
+  return message.trim() ? `${base}?text=${encodeURIComponent(message.trim())}` : base;
+}
+
+function buildSmsString(phone: string, message: string): string {
+  const number = phone.trim();
+  if (!number) return '';
+  return message.trim() ? `SMSTO:${number}:${message.trim()}` : `SMSTO:${number}:`;
 }
 
 function buildQrUrl(text: string, width: number, fg: string, bg: string, format: 'png' | 'svg', ecl?: 'L' | 'M' | 'Q' | 'H'): string {
@@ -176,6 +189,10 @@ export default function QRGenerator() {
   const [vcardEmail, setVcardEmail] = useState('');
   const [vcardCompany, setVcardCompany] = useState('');
   const [vcardWebsite, setVcardWebsite] = useState('');
+  const [whatsappPhone, setWhatsappPhone] = useState('');
+  const [whatsappMessage, setWhatsappMessage] = useState('');
+  const [smsPhone, setSmsPhone] = useState('');
+  const [smsMessage, setSmsMessage] = useState('');
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -200,7 +217,11 @@ export default function QRGenerator() {
           company: vcardCompany,
           website: vcardWebsite,
         })
-      : input;
+      : contentType === 'whatsapp'
+        ? buildWhatsAppString(whatsappPhone, whatsappMessage)
+        : contentType === 'sms'
+          ? buildSmsString(smsPhone, smsMessage)
+          : input;
 
   const vcardHasAny = [vcardFirstName, vcardLastName, vcardPhone, vcardEmail, vcardCompany, vcardWebsite]
     .some((v) => v.trim() !== '');
@@ -208,7 +229,11 @@ export default function QRGenerator() {
     ? wifiSsid.trim() !== ''
     : contentType === 'vcard'
       ? vcardHasAny
-      : input.trim() !== '';
+      : contentType === 'whatsapp'
+        ? whatsappPhone.replace(/\D/g, '').length > 0
+        : contentType === 'sms'
+          ? smsPhone.trim() !== ''
+          : input.trim() !== '';
 
   const vcardEmailError = vcardEmail.trim() && !EMAIL_REGEX.test(vcardEmail) ? 'Invalid email format' : null;
   const vcardPhoneError = vcardPhone.trim() && !PHONE_REGEX.test(vcardPhone)
@@ -383,7 +408,7 @@ export default function QRGenerator() {
             1. Enter URL or text
           </label>
           <div className="flex flex-wrap gap-2 mb-3">
-            {(['url', 'text', 'wifi', 'vcard'] as const).map((mode) => (
+            {(['url', 'text', 'wifi', 'vcard', 'whatsapp', 'sms'] as const).map((mode) => (
               <button
                 key={mode}
                 type="button"
@@ -394,7 +419,7 @@ export default function QRGenerator() {
                     : 'bg-[var(--surface)] dark:bg-[var(--surface)] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-[var(--shadow-sm)] border border-zinc-200/80 dark:border-zinc-600/80'
                 }`}
               >
-                {mode === 'url' ? 'URL' : mode === 'text' ? 'Plain text' : mode === 'wifi' ? 'Wi-Fi' : 'vCard'}
+                {mode === 'url' ? 'URL' : mode === 'text' ? 'Plain text' : mode === 'wifi' ? 'Wi-Fi' : mode === 'vcard' ? 'vCard' : mode === 'whatsapp' ? 'WhatsApp' : 'SMS'}
               </button>
             ))}
           </div>
@@ -475,6 +500,58 @@ export default function QRGenerator() {
                 />
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-500">Scan to save contact on iPhone or Android.</p>
+            </div>
+          ) : contentType === 'whatsapp' ? (
+            <div className="space-y-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100/80 dark:bg-zinc-800/80 p-4 shadow-[var(--shadow-sm)]">
+              <div>
+                <label htmlFor="whatsapp-phone" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Phone number (with country code)</label>
+                <input
+                  id="whatsapp-phone"
+                  type="tel"
+                  value={whatsappPhone}
+                  onChange={(e) => setWhatsappPhone(e.target.value)}
+                  placeholder="+1 234 567 8900"
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="whatsapp-message" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Default message</label>
+                <input
+                  id="whatsapp-message"
+                  type="text"
+                  value={whatsappMessage}
+                  onChange={(e) => setWhatsappMessage(e.target.value)}
+                  placeholder="Hello! I found this from your QR code."
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">Scan to open WhatsApp chat with pre-filled message.</p>
+            </div>
+          ) : contentType === 'sms' ? (
+            <div className="space-y-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100/80 dark:bg-zinc-800/80 p-4 shadow-[var(--shadow-sm)]">
+              <div>
+                <label htmlFor="sms-phone" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Phone number</label>
+                <input
+                  id="sms-phone"
+                  type="tel"
+                  value={smsPhone}
+                  onChange={(e) => setSmsPhone(e.target.value)}
+                  placeholder="+1 234 567 8900"
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="sms-message" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Message</label>
+                <input
+                  id="sms-message"
+                  type="text"
+                  value={smsMessage}
+                  onChange={(e) => setSmsMessage(e.target.value)}
+                  placeholder="Your text message here"
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">Scan to open SMS app with number and message pre-filled.</p>
             </div>
           ) : contentType !== 'wifi' ? (
             <input
