@@ -20,6 +20,12 @@ export default function Header() {
         </Link>
         <div className="flex gap-1 sm:gap-6">
           <Link
+            href="/qr-code-reader"
+            className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-200 py-2.5 px-3 min-h-[44px] flex items-center justify-center rounded-lg sm:min-h-0 sm:px-0"
+          >
+            QR Reader
+          </Link>
+          <Link
             href="/blog"
             className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-200 py-2.5 px-3 min-h-[44px] flex items-center justify-center rounded-lg sm:min-h-0 sm:px-0"
           >

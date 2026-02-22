@@ -24,7 +24,17 @@ export type PageContent = {
   howToSteps?: HowToStep[];
 };
 
-const data = contentData as Record<string, PageContent>;
+export type ReaderPageContent = {
+  slug: string;
+  metaTitle: string;
+  metaDescription: string;
+  h1: string;
+  heroSubtitle: string;
+  heroDescription: string;
+  bodyContent: BodySection[];
+};
+
+const data = contentData as Record<string, PageContent | ReaderPageContent>;
 
 export const QR_SOLUTIONS: { slug: string; label: string }[] = [
   { slug: 'vcard-qr-generator', label: 'vCard Generator' },
@@ -43,15 +53,35 @@ const CONTENT_TYPE_TO_SLUG: Record<ContentType, string> = {
 };
 
 export function getPageContent(slug: string): PageContent | null {
-  return data[slug] ?? null;
+  const entry = data[slug];
+  if (!entry || !('contentType' in entry)) return null;
+  return entry as PageContent;
+}
+
+export function getReaderPageContent(): ReaderPageContent | null {
+  const entry = data['qr-code-reader'];
+  if (!entry || typeof entry !== 'object') return null;
+  const c = entry as Record<string, unknown>;
+  if (
+    typeof c.slug !== 'string' ||
+    typeof c.metaTitle !== 'string' ||
+    typeof c.metaDescription !== 'string' ||
+    typeof c.h1 !== 'string' ||
+    typeof c.heroSubtitle !== 'string' ||
+    typeof c.heroDescription !== 'string' ||
+    !Array.isArray(c.bodyContent)
+  ) {
+    return null;
+  }
+  return entry as ReaderPageContent;
 }
 
 export function getContentByType(
   contentType: ContentType
 ): { bodyContent: BodySection[]; howToSteps: HowToStep[] } {
   const slug = CONTENT_TYPE_TO_SLUG[contentType];
-  const entry = data[slug];
-  const fallback = data['url'];
+  const entry = data[slug] as PageContent | undefined;
+  const fallback = data['url'] as PageContent | undefined;
 
   const bodyContent = (entry?.bodyContent ?? fallback?.bodyContent ?? []) as BodySection[];
   const howToSteps = (entry?.howToSteps ?? fallback?.howToSteps ?? []) as HowToStep[];

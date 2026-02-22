@@ -117,6 +117,11 @@ export default function GeneratorPageContent({
             <div>
               <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3">QR Solutions</h3>
               <ul className="flex flex-wrap gap-x-4 gap-y-2">
+                <li>
+                  <Link href="/qr-code-reader" className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
+                    QR Reader
+                  </Link>
+                </li>
                 {QR_SOLUTIONS.map(({ slug, label }) => (
                   <li key={slug}>
                     <Link href={`/${slug}`} className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">

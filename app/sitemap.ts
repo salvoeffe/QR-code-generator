@@ -4,7 +4,7 @@ import { QR_SOLUTIONS } from '@/lib/content';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
 
-const staticPages = ['', '/blog', '/faq', '/privacy', '/terms', '/about'];
+const staticPages = ['', '/blog', '/faq', '/privacy', '/terms', '/about', '/qr-code-reader'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPosts();
