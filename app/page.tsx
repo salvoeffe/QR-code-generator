@@ -9,6 +9,12 @@ import Header from '@/components/Header';
 import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
 import { getPosts } from '@/lib/posts';
 
+export const metadata = {
+  title: {
+    absolute: 'Free QR Code Generator — No Sign-Up, Instant Download',
+  },
+};
+
 export default async function Home() {
   const allPosts = await getPosts();
   const latestPosts = allPosts.slice(0, 3);
@@ -26,16 +32,16 @@ export default async function Home() {
       />
       <Header />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 relative">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-12 md:pb-20 relative">
         <div className="text-center mb-10 sm:mb-12 hero-animate rounded-2xl p-6 sm:p-8 bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 tracking-tight">
-            Free QR Code Generator — No Sign-Up, Instant Download
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-100 mb-2 tracking-tight">
+            Free QR Code Generator
           </h1>
-          <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            Create QR codes for your website, link, or any text. No sign-up required. Instant download.
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
+            No sign-up. No expiration. Instant download.
           </p>
-          <p className="mt-4 text-sm font-normal text-zinc-500 dark:text-zinc-500">
-            No expiration · Unlimited scans · No account · We don&apos;t store your data
+          <p className="text-base text-zinc-500 dark:text-zinc-500 max-w-2xl mx-auto">
+            Create QR codes for your website, link, or any text.
           </p>
         </div>
 

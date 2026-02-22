@@ -30,14 +30,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const sizeParam = searchParams.get('size');
-    const width = sizeParam ? Math.min(1024, Math.max(128, parseInt(sizeParam, 10) || 256)) : 256;
+    const width = sizeParam ? Math.min(4096, Math.max(128, parseInt(sizeParam, 10) || 256)) : 256;
     const format = searchParams.get('format') === 'svg' ? 'svg' : 'png';
     const fg = parseColor(searchParams.get('fg'), '#000000');
     const bg = parseColor(searchParams.get('bg'), '#ffffff');
+    const eclParam = searchParams.get('ecl')?.toUpperCase();
+    const ecl = ['L', 'M', 'Q', 'H'].includes(eclParam || '') ? eclParam as 'L' | 'M' | 'Q' | 'H' : 'M';
 
     const options = {
       margin: 2,
-      errorCorrectionLevel: 'M' as const,
+      errorCorrectionLevel: ecl,
       color: { dark: fg, light: bg },
     };
 
@@ -95,14 +97,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const width = typeof body?.width === 'number' ? Math.min(1024, Math.max(128, body.width)) : 256;
+    const width = typeof body?.width === 'number' ? Math.min(4096, Math.max(128, body.width)) : 256;
     const format = body?.format === 'svg' ? 'svg' : 'png';
     const fg = parseColor(body?.fg, '#000000');
     const bg = parseColor(body?.bg, '#ffffff');
+    const eclParam = typeof body?.ecl === 'string' ? body.ecl.toUpperCase() : '';
+    const ecl = ['L', 'M', 'Q', 'H'].includes(eclParam) ? eclParam as 'L' | 'M' | 'Q' | 'H' : 'M';
 
     const options = {
       margin: 2,
-      errorCorrectionLevel: 'M' as const,
+      errorCorrectionLevel: ecl,
       color: { dark: fg, light: bg },
     };
 

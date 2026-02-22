@@ -3,7 +3,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 const DEBOUNCE_MS = 400;
-const SIZES = [256, 384, 512, 1024];
+const PREVIEW_MAX_SIZE = 512;
+const SIZES = [256, 384, 512, 1024, 2048, 4096];
 
 type ContentType = 'url' | 'text' | 'wifi';
 
@@ -14,7 +15,7 @@ function buildWifiString(ssid: string, password: string, auth: 'WPA' | 'WEP' | '
   return `WIFI:T:${auth};S:${s};P:${password};;`;
 }
 
-function buildQrUrl(text: string, width: number, fg: string, bg: string, format: 'png' | 'svg'): string {
+function buildQrUrl(text: string, width: number, fg: string, bg: string, format: 'png' | 'svg', ecl?: 'L' | 'M' | 'Q' | 'H'): string {
   const params = new URLSearchParams({
     text,
     size: String(width),
@@ -22,7 +23,111 @@ function buildQrUrl(text: string, width: number, fg: string, bg: string, format:
     bg: bg.replace(/^#/, ''),
   });
   if (format === 'svg') params.set('format', 'svg');
+  if (ecl) params.set('ecl', ecl);
   return `/api/qr?${params.toString()}`;
+}
+
+async function compositeLogoOnQr(
+  qrBlob: Blob,
+  logoDataUrl: string,
+  qrSize: number,
+  bgColor: string,
+  logoPercent: number
+): Promise<Blob> {
+  const maxLogoSize = Math.round(qrSize * (logoPercent / 100));
+  const padding = Math.round((qrSize - maxLogoSize) / 2);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = qrSize;
+  canvas.height = qrSize;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas context not available');
+
+  const qrImg = await createImageBitmap(qrBlob);
+  ctx.drawImage(qrImg, 0, 0);
+  qrImg.close();
+
+  const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Failed to load logo'));
+    img.src = logoDataUrl;
+  });
+
+  const logoW = logoImg.naturalWidth;
+  const logoH = logoImg.naturalHeight;
+
+  const scale = maxLogoSize / Math.max(logoW, logoH);
+  const drawWidth = Math.round(logoW * scale);
+  const drawHeight = Math.round(logoH * scale);
+
+  const logoX = padding + (maxLogoSize - drawWidth) / 2;
+  const logoY = padding + (maxLogoSize - drawHeight) / 2;
+
+  const bufferPadding = 4;
+  const bufferWidth = drawWidth + bufferPadding * 2;
+  const bufferHeight = drawHeight + bufferPadding * 2;
+  const bufferX = padding + (maxLogoSize - bufferWidth) / 2;
+  const bufferY = padding + (maxLogoSize - bufferHeight) / 2;
+
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(bufferX, bufferY, bufferWidth, bufferHeight);
+  ctx.drawImage(logoImg, 0, 0, logoW, logoH, logoX, logoY, drawWidth, drawHeight);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
+      'image/png'
+    );
+  });
+}
+
+async function embedLogoInSvg(
+  svgString: string,
+  logoDataUrl: string,
+  bgColor: string,
+  logoPercent: number
+): Promise<string> {
+  const viewBoxMatch = svgString.match(/viewBox=["']([^"']+)["']/);
+  const viewBoxSize = viewBoxMatch
+    ? Math.min(...viewBoxMatch[1].split(/\s+/).slice(2).map(Number))
+    : 29;
+
+  const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Failed to load logo'));
+    img.src = logoDataUrl;
+  });
+
+  const logoW = logoImg.naturalWidth;
+  const logoH = logoImg.naturalHeight;
+
+  const maxLogoSize = viewBoxSize * (logoPercent / 100);
+  const padding = (viewBoxSize - maxLogoSize) / 2;
+
+  const scale = maxLogoSize / Math.max(logoW, logoH);
+  const drawWidth = logoW * scale;
+  const drawHeight = logoH * scale;
+
+  const logoX = padding + (maxLogoSize - drawWidth) / 2;
+  const logoY = padding + (maxLogoSize - drawHeight) / 2;
+
+  const bufferPadding = 4 / 256 * viewBoxSize;
+  const bufferWidth = drawWidth + bufferPadding * 2;
+  const bufferHeight = drawHeight + bufferPadding * 2;
+  const bufferX = padding + (maxLogoSize - bufferWidth) / 2;
+  const bufferY = padding + (maxLogoSize - bufferHeight) / 2;
+
+  const rectEl = `<rect x="${bufferX}" y="${bufferY}" width="${bufferWidth}" height="${bufferHeight}" fill="${bgColor}"/>`;
+  const escapedHref = logoDataUrl.replace(/"/g, "'");
+  const imageEl = `<image xlink:href="${escapedHref}" x="${logoX}" y="${logoY}" width="${drawWidth}" height="${drawHeight}" preserveAspectRatio="xMidYMid meet"/>`;
+
+  let result = svgString.replace(/\s*<\/svg>\s*$/s, `\n  ${rectEl}\n  ${imageEl}\n</svg>`);
+  if (!result.includes('xmlns:xlink')) {
+    result = result.replace(/<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ');
+  }
+  return result;
 }
 
 export default function QRGenerator() {
@@ -39,7 +144,9 @@ export default function QRGenerator() {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [justDownloaded, setJustDownloaded] = useState(false);
-  const [justCopied, setJustCopied] = useState(false);
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [logoSizePercent, setLogoSizePercent] = useState(20);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const downloadSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const effectiveText = contentType === 'wifi'
@@ -47,7 +154,14 @@ export default function QRGenerator() {
     : input;
   const hasContent = contentType === 'wifi' ? wifiSsid.trim() !== '' : input.trim() !== '';
 
-  const generateQr = useCallback(async (text: string, width: number, fg: string, bg: string) => {
+  const generateQr = useCallback(async (
+    text: string,
+    width: number,
+    fg: string,
+    bg: string,
+    logo: string | null,
+    logoPercent: number
+  ) => {
     if (!text.trim()) {
       setQrUrl(null);
       setError(null);
@@ -57,14 +171,22 @@ export default function QRGenerator() {
     setLoading(true);
     setError(null);
 
+    const previewSize = Math.min(width, PREVIEW_MAX_SIZE);
+
     try {
-      const url = buildQrUrl(text, width, fg, bg, 'png');
+      const ecl = logo ? 'H' : 'M';
+      const url = buildQrUrl(text, previewSize, fg, bg, 'png', ecl);
       const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to generate QR code');
       }
-      const blob = await res.blob();
+      let blob = await res.blob();
+
+      if (logo) {
+        blob = await compositeLogoOnQr(blob, logo, previewSize, bg, logoPercent);
+      }
+
       const objectUrl = URL.createObjectURL(blob);
       setQrUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -86,30 +208,71 @@ export default function QRGenerator() {
     }
 
     const t = setTimeout(() => {
-      generateQr(effectiveText, size, fgColor, bgColor);
+      generateQr(effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent);
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(t);
-  }, [effectiveText, hasContent, size, fgColor, bgColor, generateQr]);
+  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent, generateQr]);
 
-  const handleDownloadPng = useCallback(() => {
-    if (!qrUrl) return;
+  const [downloadingPng, setDownloadingPng] = useState(false);
+
+  const handleDownloadPng = useCallback(async () => {
+    if (!qrUrl && !hasContent) return;
     if (downloadSuccessTimerRef.current) clearTimeout(downloadSuccessTimerRef.current);
-    const a = document.createElement('a');
-    a.href = qrUrl;
-    a.download = 'qrcode.png';
-    a.click();
+
+    const downloadAtSize = async (targetSize: number) => {
+      const ecl = logoDataUrl ? 'H' : 'M';
+      const url = buildQrUrl(effectiveText, targetSize, fgColor, bgColor, 'png', ecl);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to generate PNG');
+      let blob = await res.blob();
+      if (logoDataUrl) {
+        blob = await compositeLogoOnQr(blob, logoDataUrl, targetSize, bgColor, logoSizePercent);
+      }
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = 'qrcode.png';
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    };
+
+    if (size <= PREVIEW_MAX_SIZE) {
+      if (!qrUrl) return;
+      const a = document.createElement('a');
+      a.href = qrUrl;
+      a.download = 'qrcode.png';
+      a.click();
+    } else {
+      if (!hasContent || !effectiveText.trim()) return;
+      setDownloadingPng(true);
+      try {
+        await downloadAtSize(size);
+      } catch {
+        setError('Could not download PNG');
+      } finally {
+        setDownloadingPng(false);
+      }
+    }
+
     setJustDownloaded(true);
     downloadSuccessTimerRef.current = setTimeout(() => setJustDownloaded(false), 2500);
-  }, [qrUrl]);
+  }, [qrUrl, hasContent, effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent]);
 
   const handleDownloadSvg = useCallback(async () => {
     if (!hasContent || !effectiveText.trim()) return;
     try {
-      const url = buildQrUrl(effectiveText, size, fgColor, bgColor, 'svg');
+      const ecl = logoDataUrl ? 'H' : 'M';
+      const url = buildQrUrl(effectiveText, size, fgColor, bgColor, 'svg', ecl);
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to generate SVG');
-      const blob = await res.blob();
+      let svgString = await res.text();
+
+      if (logoDataUrl) {
+        svgString = await embedLogoInSvg(svgString, logoDataUrl, bgColor, logoSizePercent);
+      }
+
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = blobUrl;
@@ -119,20 +282,31 @@ export default function QRGenerator() {
     } catch {
       setError('Could not download SVG');
     }
-  }, [effectiveText, hasContent, size, fgColor, bgColor]);
+  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent]);
 
-  const handleCopyToClipboard = useCallback(async () => {
-    if (!qrUrl) return;
-    try {
-      const res = await fetch(qrUrl);
-      const blob = await res.blob();
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      setJustCopied(true);
-      setTimeout(() => setJustCopied(false), 2000);
-    } catch {
-      setError('Could not copy to clipboard');
+  const handleLogoSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+      setError('Please choose a PNG or JPG image');
+      return;
     }
-  }, [qrUrl]);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setLogoDataUrl(dataUrl);
+      setError(null);
+    };
+    reader.onerror = () => setError('Could not read file');
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleRemoveLogo = useCallback(() => {
+    setLogoDataUrl(null);
+    setError(null);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -224,19 +398,57 @@ export default function QRGenerator() {
               key={s}
               type="button"
               onClick={() => setSize(s)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 active:scale-[0.98] ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] sm:min-h-0 active:scale-[0.98] ${
                 size === s
                   ? 'bg-emerald-600 text-white shadow-[var(--shadow-sm)]'
                   : 'bg-[var(--surface)] dark:bg-[var(--surface)] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-[var(--shadow-sm)] border border-zinc-200/80 dark:border-zinc-600/80'
               }`}
             >
-              {s === 1024 ? '1024px (print)' : `${s}px`}
+              <span>{s === 1024 ? '1024px' : `${s}px`}</span>
+              {s === 2048 && <span className="text-[10px] opacity-90 font-normal">(Pro print)</span>}
+              {s === 4096 && <span className="text-[10px] opacity-90 font-normal">(Ultra-HD)</span>}
             </button>
           ))}
           </div>
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">
+            3. Add logo (optional)
+          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            onChange={handleLogoSelect}
+            className="sr-only"
+            aria-label="Upload logo image"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload
+            </button>
+            {logoDataUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveLogo}
+                className="px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              >
+                Remove logo
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">PNG or JPG. Adjust logo size in Settings.</p>
+        </div>
+
+        <div className="mt-6">
           <button
             type="button"
             onClick={() => setSettingsOpen((o) => !o)}
@@ -273,6 +485,31 @@ export default function QRGenerator() {
                   />
                 </div>
               </div>
+              {logoDataUrl && (
+                <div>
+                  <label htmlFor="logo-size" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                    Logo size
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="logo-size"
+                      type="range"
+                      min={10}
+                      max={50}
+                      step={1}
+                      value={logoSizePercent}
+                      onChange={(e) => setLogoSizePercent(Number(e.target.value))}
+                      className="flex-1 h-2 rounded-lg appearance-none cursor-pointer bg-zinc-200 dark:bg-zinc-600 accent-emerald-600"
+                    />
+                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 min-w-[2.5rem] tabular-nums">
+                      {logoSizePercent}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
+                    Note: Larger logos (over 30%) may make the code harder to scan. Always test before printing.
+                  </p>
+                </div>
+              )}
               <div>
                 <label htmlFor="qr-bg" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Background color</label>
                 <div className="flex items-center gap-3">
@@ -297,7 +534,7 @@ export default function QRGenerator() {
       </div>
 
       <div className="space-y-3">
-        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">3. Download</p>
+        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">4. Download</p>
         <div className="min-h-[200px] sm:min-h-[260px] md:min-h-[280px] md:sticky md:top-24 flex flex-col rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-md)] border border-zinc-200/60 dark:border-zinc-700/60 overflow-hidden transition-shadow duration-200">
         <div className="px-5 py-3 border-b border-zinc-200/60 dark:border-zinc-700/60 bg-zinc-50/50 dark:bg-zinc-800/30">
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Preview</h3>
@@ -324,12 +561,17 @@ export default function QRGenerator() {
               src={qrUrl}
               alt="Generated QR code"
               className="max-w-full h-auto rounded-xl shadow-[var(--shadow-md)]"
-              width={size}
-              height={size}
+              width={Math.min(size, PREVIEW_MAX_SIZE)}
+              height={Math.min(size, PREVIEW_MAX_SIZE)}
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
               Scan with your phone to test. <a href="/faq#why-not-scanning" className="text-emerald-600 hover:underline">Not scanning?</a>
             </p>
+            {size > PREVIEW_MAX_SIZE && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
+                Preview scaled. Download at full {size}px.
+              </p>
+            )}
             <div className="flex flex-col items-center gap-3">
               {justDownloaded && (
                 <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
@@ -340,14 +582,14 @@ export default function QRGenerator() {
                 <button
                   type="button"
                   onClick={handleDownloadPng}
-                  disabled={justDownloaded}
+                  disabled={justDownloaded || downloadingPng}
                   className={`px-5 py-2.5 min-h-[44px] rounded-xl text-white font-medium transition-all duration-200 shadow-[var(--shadow-sm)] ${
-                    justDownloaded
+                    justDownloaded || downloadingPng
                       ? 'bg-emerald-500 cursor-default'
                       : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'
                   }`}
                 >
-                  {justDownloaded ? 'Downloaded!' : 'PNG'}
+                  {justDownloaded ? 'Downloaded!' : downloadingPng ? 'Preparing…' : 'PNG'}
                 </button>
                 <button
                   type="button"
@@ -355,14 +597,6 @@ export default function QRGenerator() {
                   className="px-5 py-2.5 min-h-[44px] rounded-xl border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 active:scale-[0.98]"
                 >
                   SVG
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCopyToClipboard}
-                  disabled={!qrUrl || justCopied}
-                  className="px-5 py-2.5 min-h-[44px] rounded-xl border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-zinc-800"
-                >
-                  {justCopied ? 'Copied!' : 'Copy'}
                 </button>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
