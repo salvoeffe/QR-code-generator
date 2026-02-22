@@ -1,8 +1,60 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import QRCodeStyling from 'qr-code-styling';
+import type { DotType } from 'qr-code-styling';
 
 const DEBOUNCE_MS = 400;
+
+export type DotStyle = 'square' | 'dots' | 'rounded';
+
+function dotStyleToQrType(style: DotStyle): DotType {
+  switch (style) {
+    case 'dots': return 'dots';
+    case 'rounded': return 'extra-rounded';
+    default: return 'square';
+  }
+}
+
+async function generateQrWithStyling(
+  text: string,
+  width: number,
+  fg: string,
+  bg: string,
+  dotStyle: DotStyle,
+  cornersMatchPixels: boolean,
+  logo: string | null,
+  logoPercent: number,
+  format: 'png' | 'svg'
+): Promise<Blob> {
+  const dotType = dotStyleToQrType(dotStyle);
+  const cornerType = cornersMatchPixels ? dotType : 'square';
+
+  const qr = new QRCodeStyling({
+    width,
+    height: width,
+    type: format === 'svg' ? 'svg' : 'canvas',
+    data: text,
+    margin: 8,
+    qrOptions: { errorCorrectionLevel: logo ? 'H' : 'M' },
+    dotsOptions: { color: fg, type: dotType },
+    backgroundOptions: { color: bg },
+    cornersSquareOptions: { type: cornerType },
+    cornersDotOptions: { type: cornerType },
+    ...(logo && {
+      image: logo,
+      imageOptions: {
+        hideBackgroundDots: true,
+        imageSize: (logoPercent / 100) * 0.5,
+        margin: 4,
+      },
+    }),
+  });
+
+  const data = await qr.getRawData(format);
+  if (!data) throw new Error('Failed to generate QR code');
+  return data instanceof Blob ? data : new Blob([data as unknown as BlobPart]);
+}
 const PREVIEW_MAX_SIZE = 512;
 const SIZES = [256, 384, 512, 1024, 2048, 4096];
 
@@ -62,121 +114,6 @@ function buildSmsString(phone: string, message: string): string {
   return message.trim() ? `SMSTO:${number}:${message.trim()}` : `SMSTO:${number}:`;
 }
 
-function buildQrUrl(text: string, width: number, fg: string, bg: string, format: 'png' | 'svg', ecl?: 'L' | 'M' | 'Q' | 'H'): string {
-  const params = new URLSearchParams({
-    text,
-    size: String(width),
-    fg: fg.replace(/^#/, ''),
-    bg: bg.replace(/^#/, ''),
-  });
-  if (format === 'svg') params.set('format', 'svg');
-  if (ecl) params.set('ecl', ecl);
-  return `/api/qr?${params.toString()}`;
-}
-
-async function compositeLogoOnQr(
-  qrBlob: Blob,
-  logoDataUrl: string,
-  qrSize: number,
-  bgColor: string,
-  logoPercent: number
-): Promise<Blob> {
-  const maxLogoSize = Math.round(qrSize * (logoPercent / 100));
-  const padding = Math.round((qrSize - maxLogoSize) / 2);
-
-  const canvas = document.createElement('canvas');
-  canvas.width = qrSize;
-  canvas.height = qrSize;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas context not available');
-
-  const qrImg = await createImageBitmap(qrBlob);
-  ctx.drawImage(qrImg, 0, 0);
-  qrImg.close();
-
-  const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load logo'));
-    img.src = logoDataUrl;
-  });
-
-  const logoW = logoImg.naturalWidth;
-  const logoH = logoImg.naturalHeight;
-
-  const scale = maxLogoSize / Math.max(logoW, logoH);
-  const drawWidth = Math.round(logoW * scale);
-  const drawHeight = Math.round(logoH * scale);
-
-  const logoX = padding + (maxLogoSize - drawWidth) / 2;
-  const logoY = padding + (maxLogoSize - drawHeight) / 2;
-
-  const bufferPadding = 4;
-  const bufferWidth = drawWidth + bufferPadding * 2;
-  const bufferHeight = drawHeight + bufferPadding * 2;
-  const bufferX = padding + (maxLogoSize - bufferWidth) / 2;
-  const bufferY = padding + (maxLogoSize - bufferHeight) / 2;
-
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(bufferX, bufferY, bufferWidth, bufferHeight);
-  ctx.drawImage(logoImg, 0, 0, logoW, logoH, logoX, logoY, drawWidth, drawHeight);
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'))),
-      'image/png'
-    );
-  });
-}
-
-async function embedLogoInSvg(
-  svgString: string,
-  logoDataUrl: string,
-  bgColor: string,
-  logoPercent: number
-): Promise<string> {
-  const viewBoxMatch = svgString.match(/viewBox=["']([^"']+)["']/);
-  const viewBoxSize = viewBoxMatch
-    ? Math.min(...viewBoxMatch[1].split(/\s+/).slice(2).map(Number))
-    : 29;
-
-  const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to load logo'));
-    img.src = logoDataUrl;
-  });
-
-  const logoW = logoImg.naturalWidth;
-  const logoH = logoImg.naturalHeight;
-
-  const maxLogoSize = viewBoxSize * (logoPercent / 100);
-  const padding = (viewBoxSize - maxLogoSize) / 2;
-
-  const scale = maxLogoSize / Math.max(logoW, logoH);
-  const drawWidth = logoW * scale;
-  const drawHeight = logoH * scale;
-
-  const logoX = padding + (maxLogoSize - drawWidth) / 2;
-  const logoY = padding + (maxLogoSize - drawHeight) / 2;
-
-  const bufferPadding = 4 / 256 * viewBoxSize;
-  const bufferWidth = drawWidth + bufferPadding * 2;
-  const bufferHeight = drawHeight + bufferPadding * 2;
-  const bufferX = padding + (maxLogoSize - bufferWidth) / 2;
-  const bufferY = padding + (maxLogoSize - bufferHeight) / 2;
-
-  const rectEl = `<rect x="${bufferX}" y="${bufferY}" width="${bufferWidth}" height="${bufferHeight}" fill="${bgColor}"/>`;
-  const escapedHref = logoDataUrl.replace(/"/g, "'");
-  const imageEl = `<image xlink:href="${escapedHref}" x="${logoX}" y="${logoY}" width="${drawWidth}" height="${drawHeight}" preserveAspectRatio="xMidYMid meet"/>`;
-
-  let result = svgString.replace(/\s*<\/svg>\s*$/, `\n  ${rectEl}\n  ${imageEl}\n</svg>`);
-  if (!result.includes('xmlns:xlink')) {
-    result = result.replace(/<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ');
-  }
-  return result;
-}
-
 type QRGeneratorProps = {
   initialContentType?: ContentType;
   onContentTypeChange?: (type: ContentType) => void;
@@ -208,6 +145,8 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
   const [justDownloaded, setJustDownloaded] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
   const [logoSizePercent, setLogoSizePercent] = useState(20);
+  const [dotStyle, setDotStyle] = useState<DotStyle>('square');
+  const [cornersMatchPixels, setCornersMatchPixels] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const downloadSuccessTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -251,7 +190,9 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
     fg: string,
     bg: string,
     logo: string | null,
-    logoPercent: number
+    logoPercent: number,
+    dotStyleVal: DotStyle,
+    cornersMatch: boolean
   ) => {
     if (!text.trim()) {
       setQrUrl(null);
@@ -265,18 +206,17 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
     const previewSize = Math.min(width, PREVIEW_MAX_SIZE);
 
     try {
-      const ecl = logo ? 'H' : 'M';
-      const url = buildQrUrl(text, previewSize, fg, bg, 'png', ecl);
-      const res = await fetch(url);
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to generate QR code');
-      }
-      let blob = await res.blob();
-
-      if (logo) {
-        blob = await compositeLogoOnQr(blob, logo, previewSize, bg, logoPercent);
-      }
+      const blob = await generateQrWithStyling(
+        text,
+        previewSize,
+        fg,
+        bg,
+        dotStyleVal,
+        cornersMatch,
+        logo,
+        logoPercent,
+        'png'
+      );
 
       const objectUrl = URL.createObjectURL(blob);
       setQrUrl((prev) => {
@@ -299,11 +239,11 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
     }
 
     const t = setTimeout(() => {
-      generateQr(effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent);
+      generateQr(effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent, dotStyle, cornersMatchPixels);
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(t);
-  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent, generateQr]);
+  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent, dotStyle, cornersMatchPixels, generateQr]);
 
   const [downloadingPng, setDownloadingPng] = useState(false);
 
@@ -312,14 +252,17 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
     if (downloadSuccessTimerRef.current) clearTimeout(downloadSuccessTimerRef.current);
 
     const downloadAtSize = async (targetSize: number) => {
-      const ecl = logoDataUrl ? 'H' : 'M';
-      const url = buildQrUrl(effectiveText, targetSize, fgColor, bgColor, 'png', ecl);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to generate PNG');
-      let blob = await res.blob();
-      if (logoDataUrl) {
-        blob = await compositeLogoOnQr(blob, logoDataUrl, targetSize, bgColor, logoSizePercent);
-      }
+      const blob = await generateQrWithStyling(
+        effectiveText,
+        targetSize,
+        fgColor,
+        bgColor,
+        dotStyle,
+        cornersMatchPixels,
+        logoDataUrl,
+        logoSizePercent,
+        'png'
+      );
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = blobUrl;
@@ -348,22 +291,22 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
 
     setJustDownloaded(true);
     downloadSuccessTimerRef.current = setTimeout(() => setJustDownloaded(false), 2500);
-  }, [qrUrl, hasContent, effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent]);
+  }, [qrUrl, hasContent, effectiveText, size, fgColor, bgColor, logoDataUrl, logoSizePercent, dotStyle, cornersMatchPixels]);
 
   const handleDownloadSvg = useCallback(async () => {
     if (!hasContent || !effectiveText.trim()) return;
     try {
-      const ecl = logoDataUrl ? 'H' : 'M';
-      const url = buildQrUrl(effectiveText, size, fgColor, bgColor, 'svg', ecl);
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to generate SVG');
-      let svgString = await res.text();
-
-      if (logoDataUrl) {
-        svgString = await embedLogoInSvg(svgString, logoDataUrl, bgColor, logoSizePercent);
-      }
-
-      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const blob = await generateQrWithStyling(
+        effectiveText,
+        size,
+        fgColor,
+        bgColor,
+        dotStyle,
+        cornersMatchPixels,
+        logoDataUrl,
+        logoSizePercent,
+        'svg'
+      );
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = blobUrl;
@@ -373,7 +316,7 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
     } catch {
       setError('Could not download SVG');
     }
-  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent]);
+  }, [effectiveText, hasContent, size, fgColor, bgColor, logoDataUrl, logoSizePercent, dotStyle, cornersMatchPixels]);
 
   const handleLogoSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -617,22 +560,35 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
         <div>
           <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">2. Choose size</label>
           <div className="flex flex-wrap gap-2">
-          {SIZES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSize(s)}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] sm:min-h-0 active:scale-[0.98] ${
-                size === s
-                  ? 'bg-emerald-600 text-white shadow-[var(--shadow-sm)]'
-                  : 'bg-[var(--surface)] dark:bg-[var(--surface)] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-[var(--shadow-sm)] border border-zinc-200/80 dark:border-zinc-600/80'
-              }`}
-            >
-              <span>{s === 1024 ? '1024px' : `${s}px`}</span>
-              {s === 2048 && <span className="text-[10px] opacity-90 font-normal">(Pro print)</span>}
-              {s === 4096 && <span className="text-[10px] opacity-90 font-normal">(Ultra-HD)</span>}
-            </button>
-          ))}
+          {SIZES.map((s) => {
+            const tooltip =
+              s === 2048 ? 'Recommended for posters and flyers.' : s === 4096 ? 'Best for billboards and large-scale printing.' : null;
+            return (
+              <div key={s} className="group/tooltip relative">
+                <button
+                  type="button"
+                  onClick={() => setSize(s)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] sm:min-h-0 active:scale-[0.98] ${
+                    size === s
+                      ? 'bg-emerald-600 text-white shadow-[var(--shadow-sm)]'
+                      : 'bg-[var(--surface)] dark:bg-[var(--surface)] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-[var(--shadow-sm)] border border-zinc-200/80 dark:border-zinc-600/80'
+                  }`}
+                >
+                  <span>{s === 1024 ? '1024px' : `${s}px`}</span>
+                  {s === 2048 && <span className="text-[10px] opacity-90 font-normal">(Pro print)</span>}
+                  {s === 4096 && <span className="text-[10px] opacity-90 font-normal">(Ultra-HD)</span>}
+                </button>
+                {tooltip && (
+                  <span
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-sm opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-opacity duration-150 whitespace-nowrap z-10"
+                    role="tooltip"
+                  >
+                    {tooltip}
+                  </span>
+                )}
+              </div>
+            );
+          })}
           </div>
         </div>
 
@@ -751,6 +707,34 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
                     className="w-24 px-2 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-mono text-zinc-900 dark:text-zinc-100"
                   />
                 </div>
+              </div>
+              <div>
+                <p className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2">QR Style</p>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {(['square', 'dots', 'rounded'] as const).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setDotStyle(s)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        dotStyle === s
+                          ? 'bg-emerald-600 text-white shadow-[var(--shadow-sm)]'
+                          : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+                      }`}
+                    >
+                      {s === 'square' ? 'Square (Default)' : s === 'dots' ? 'Dots' : 'Rounded'}
+                    </button>
+                  ))}
+                </div>
+                <label className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={cornersMatchPixels}
+                    onChange={(e) => setCornersMatchPixels(e.target.checked)}
+                    className="rounded border-zinc-300 dark:border-zinc-600 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  Match corner eyes to pixel style
+                </label>
               </div>
             </div>
           )}
