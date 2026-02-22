@@ -179,9 +179,10 @@ async function embedLogoInSvg(
 
 type QRGeneratorProps = {
   initialContentType?: ContentType;
+  onContentTypeChange?: (type: ContentType) => void;
 };
 
-export default function QRGenerator({ initialContentType = 'url' }: QRGeneratorProps) {
+export default function QRGenerator({ initialContentType = 'url', onContentTypeChange }: QRGeneratorProps) {
   const [contentType, setContentType] = useState<ContentType>(initialContentType);
   const [input, setInput] = useState('');
   const [wifiSsid, setWifiSsid] = useState('');
@@ -416,7 +417,10 @@ export default function QRGenerator({ initialContentType = 'url' }: QRGeneratorP
               <button
                 key={mode}
                 type="button"
-                onClick={() => setContentType(mode)}
+                onClick={() => {
+                  setContentType(mode);
+                  onContentTypeChange?.(mode);
+                }}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] sm:min-h-0 active:scale-[0.98] ${
                   contentType === mode
                     ? 'bg-emerald-600 text-white shadow-[var(--shadow-sm)]'

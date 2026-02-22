@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import QRGenerator, { type ContentType } from '@/components/QRGenerator';
 import HowToUseSection from '@/components/HowToUseSection';
@@ -7,6 +10,7 @@ import { WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import AdUnit from '@/components/AdUnit';
 import Header from '@/components/Header';
 import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
+import { getContentByType } from '@/lib/content';
 import type { PostMeta } from '@/lib/posts';
 
 export type HeroConfig = {
@@ -32,6 +36,14 @@ export default function GeneratorPageContent({
   initialContentType,
   latestPosts,
 }: GeneratorPageContentProps) {
+  const [activeContentType, setActiveContentType] = useState<ContentType>(initialContentType ?? 'url');
+
+  useEffect(() => {
+    setActiveContentType(initialContentType ?? 'url');
+  }, [initialContentType]);
+
+  const { bodyContent, howToSteps } = getContentByType(activeContentType);
+
   return (
     <div className="min-h-screen relative">
       <WebApplicationJsonLd />
@@ -58,9 +70,33 @@ export default function GeneratorPageContent({
           </p>
         </div>
 
-        <QRGenerator initialContentType={initialContentType} />
+        <QRGenerator
+          initialContentType={initialContentType}
+          onContentTypeChange={setActiveContentType}
+        />
 
-        <HowToUseSection />
+        <div key={activeContentType} className="animate-in fade-in duration-200">
+          {bodyContent.length > 0 && (
+            <article className="mt-12 sm:mt-16 space-y-10">
+              {bodyContent.map((section, i) => (
+                <section key={i}>
+                  <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+                    {section.subheading}
+                  </h3>
+                  <div className="space-y-4">
+                    {section.paragraphs.map((p, j) => (
+                      <p key={j} className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </article>
+          )}
+
+          <HowToUseSection steps={howToSteps} />
+        </div>
 
         <div className="mt-10 sm:mt-12 flex justify-center">
           <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT} format="horizontal" className="w-full max-w-[728px]" />

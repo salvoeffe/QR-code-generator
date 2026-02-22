@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getPosts } from '@/lib/posts';
-import { getSlugConfig } from '@/lib/slugs';
+import { getPageContent } from '@/lib/content';
 import GeneratorPageContent from '@/components/GeneratorPageContent';
 
 type PageProps = {
@@ -9,18 +9,19 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const config = getSlugConfig(slug);
-  if (!config) return {};
+  const content = getPageContent(slug);
+  if (!content) return {};
   return {
-    title: { absolute: config.metadataTitle },
+    title: { absolute: content.metaTitle },
+    description: content.metaDescription,
   };
 }
 
 export default async function SlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const config = getSlugConfig(slug);
+  const content = getPageContent(slug);
 
-  if (!config) {
+  if (!content) {
     notFound();
   }
 
@@ -30,11 +31,11 @@ export default async function SlugPage({ params }: PageProps) {
   return (
     <GeneratorPageContent
       hero={{
-        title: config.title,
-        subtitle: config.subtitle,
-        description: config.description,
+        title: content.h1,
+        subtitle: content.heroSubtitle,
+        description: content.heroDescription,
       }}
-      initialContentType={config.contentType}
+      initialContentType={content.contentType}
       latestPosts={latestPosts}
     />
   );
