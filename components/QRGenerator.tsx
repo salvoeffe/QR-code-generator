@@ -123,7 +123,7 @@ async function embedLogoInSvg(
   const escapedHref = logoDataUrl.replace(/"/g, "'");
   const imageEl = `<image xlink:href="${escapedHref}" x="${logoX}" y="${logoY}" width="${drawWidth}" height="${drawHeight}" preserveAspectRatio="xMidYMid meet"/>`;
 
-  let result = svgString.replace(/\s*<\/svg>\s*$/s, `\n  ${rectEl}\n  ${imageEl}\n</svg>`);
+  let result = svgString.replace(/\s*<\/svg>\s*$/, `\n  ${rectEl}\n  ${imageEl}\n</svg>`);
   if (!result.includes('xmlns:xlink')) {
     result = result.replace(/<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ');
   }
