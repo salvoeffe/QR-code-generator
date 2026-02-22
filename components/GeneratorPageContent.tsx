@@ -10,7 +10,7 @@ import { WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
 import AdUnit from '@/components/AdUnit';
 import Header from '@/components/Header';
 import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
-import { getContentByType } from '@/lib/content';
+import { getContentByType, QR_SOLUTIONS } from '@/lib/content';
 import type { PostMeta } from '@/lib/posts';
 
 export type HeroConfig = {
@@ -112,19 +112,33 @@ export default function GeneratorPageContent({
       </main>
 
       <footer className="border-t border-zinc-200/80 dark:border-zinc-800/80 mt-16 sm:mt-24 shadow-[var(--shadow-sm)]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-zinc-500">
-          <span>© {new Date().getFullYear()} QR Code Generator. All rights reserved.</span>
-          <div className="flex flex-wrap gap-4 sm:gap-6">
-            <Link href="/faq" className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
-              FAQ
-            </Link>
-            <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
-              Terms of Service
-            </Link>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-8 sm:gap-12">
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3">QR Solutions</h3>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2">
+                {QR_SOLUTIONS.map(({ slug, label }) => (
+                  <li key={slug}>
+                    <Link href={`/${slug}`} className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex flex-wrap gap-4 sm:gap-6">
+              <Link href="/faq" className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
+                FAQ
+              </Link>
+              <Link href="/privacy" className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors py-2 min-h-[44px] flex items-center sm:min-h-0 sm:py-0">
+                Terms of Service
+              </Link>
+            </div>
           </div>
+          <span className="text-sm text-zinc-500">© {new Date().getFullYear()} QR Code Generator. All rights reserved.</span>
         </div>
       </footer>
     </div>

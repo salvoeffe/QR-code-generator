@@ -26,6 +26,13 @@ export type PageContent = {
 
 const data = contentData as Record<string, PageContent>;
 
+export const QR_SOLUTIONS: { slug: string; label: string }[] = [
+  { slug: 'vcard-qr-generator', label: 'vCard Generator' },
+  { slug: 'whatsapp-qr-generator', label: 'WhatsApp QR Code' },
+  { slug: 'wifi-qr-generator', label: 'Wi-Fi QR Code' },
+  { slug: 'sms-qr-generator', label: 'SMS QR Code' },
+];
+
 const CONTENT_TYPE_TO_SLUG: Record<ContentType, string> = {
   url: 'url',
   text: 'url',

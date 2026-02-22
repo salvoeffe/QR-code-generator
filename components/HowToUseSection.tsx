@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { HowToStep } from '@/lib/content';
 
 const DEFAULT_STEPS: HowToStep[] = [
@@ -39,6 +40,18 @@ export default function HowToUseSection({ steps }: HowToUseSectionProps) {
           </div>
         ))}
       </div>
+
+      <p className="mt-8 text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        Looking for something specific? Try our{' '}
+        <Link href="/vcard-qr-generator" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+          vCard Generator
+        </Link>{' '}
+        or{' '}
+        <Link href="/whatsapp-qr-generator" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+          WhatsApp Link Tool
+        </Link>
+        .
+      </p>
     </section>
   );
 }
