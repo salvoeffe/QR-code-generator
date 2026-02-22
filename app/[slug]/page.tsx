@@ -3,6 +3,8 @@ import { getPosts } from '@/lib/posts';
 import { getPageContent } from '@/lib/content';
 import GeneratorPageContent from '@/components/GeneratorPageContent';
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -14,6 +16,9 @@ export async function generateMetadata({ params }: PageProps) {
   return {
     title: { absolute: content.metaTitle },
     description: content.metaDescription,
+    alternates: {
+      canonical: `${baseUrl}/${slug}`,
+    },
   };
 }
 

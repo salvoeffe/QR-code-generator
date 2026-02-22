@@ -1,9 +1,14 @@
 import { getPosts } from '@/lib/posts';
 import GeneratorPageContent from '@/components/GeneratorPageContent';
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
+
 export const metadata = {
   title: {
     absolute: 'Free QR Code Generator — No Sign-Up, Instant Download',
+  },
+  alternates: {
+    canonical: baseUrl,
   },
 };
 

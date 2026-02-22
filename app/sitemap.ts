@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { getPosts } from '@/lib/posts';
+import { QR_SOLUTIONS } from '@/lib/content';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
 
 const staticPages = ['', '/blog', '/faq', '/privacy', '/terms', '/about'];
 
@@ -15,6 +16,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === '' ? 1 : 0.8,
   }));
 
+  const solutionUrls: MetadataRoute.Sitemap = QR_SOLUTIONS.map(({ slug }) => ({
+    url: `${baseUrl}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9,
+  }));
+
   const blogUrls: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.date),
@@ -22,5 +30,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticUrls, ...blogUrls];
+  return [...staticUrls, ...solutionUrls, ...blogUrls];
 }
