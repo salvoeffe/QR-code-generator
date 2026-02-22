@@ -6,7 +6,41 @@ const DEBOUNCE_MS = 400;
 const PREVIEW_MAX_SIZE = 512;
 const SIZES = [256, 384, 512, 1024, 2048, 4096];
 
-type ContentType = 'url' | 'text' | 'wifi';
+type ContentType = 'url' | 'text' | 'wifi' | 'vcard';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[\d\s\-+().]+$/;
+
+function escapeVcf(val: string): string {
+  return val.replace(/[\\;,]/g, '\\$&').replace(/\n/g, '\\n');
+}
+
+function buildVCardString(data: {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  company: string;
+  website: string;
+}): string {
+  const { firstName, lastName, phone, email, company, website } = data;
+  const fn = [firstName, lastName].filter(Boolean).join(' ').trim() || 'Contact';
+  const n = escapeVcf(lastName) + ';' + escapeVcf(firstName) + ';;;';
+
+  const lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+  lines.push('N:' + n);
+  lines.push('FN:' + escapeVcf(fn));
+  if (phone.trim()) lines.push('TEL:' + phone.trim());
+  if (email.trim()) lines.push('EMAIL:' + email.trim());
+  if (company.trim()) lines.push('ORG:' + escapeVcf(company.trim()));
+  if (website.trim()) {
+    let url = website.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+    lines.push('URL:' + url);
+  }
+  lines.push('END:VCARD');
+  return lines.join('\r\n');
+}
 
 function buildWifiString(ssid: string, password: string, auth: 'WPA' | 'WEP' | 'nopass'): string {
   const s = ssid.trim();
@@ -136,6 +170,12 @@ export default function QRGenerator() {
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
   const [wifiAuth, setWifiAuth] = useState<'WPA' | 'WEP' | 'nopass'>('WPA');
+  const [vcardFirstName, setVcardFirstName] = useState('');
+  const [vcardLastName, setVcardLastName] = useState('');
+  const [vcardPhone, setVcardPhone] = useState('');
+  const [vcardEmail, setVcardEmail] = useState('');
+  const [vcardCompany, setVcardCompany] = useState('');
+  const [vcardWebsite, setVcardWebsite] = useState('');
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -151,8 +191,29 @@ export default function QRGenerator() {
 
   const effectiveText = contentType === 'wifi'
     ? buildWifiString(wifiSsid, wifiPassword, wifiAuth)
-    : input;
-  const hasContent = contentType === 'wifi' ? wifiSsid.trim() !== '' : input.trim() !== '';
+    : contentType === 'vcard'
+      ? buildVCardString({
+          firstName: vcardFirstName,
+          lastName: vcardLastName,
+          phone: vcardPhone,
+          email: vcardEmail,
+          company: vcardCompany,
+          website: vcardWebsite,
+        })
+      : input;
+
+  const vcardHasAny = [vcardFirstName, vcardLastName, vcardPhone, vcardEmail, vcardCompany, vcardWebsite]
+    .some((v) => v.trim() !== '');
+  const hasContent = contentType === 'wifi'
+    ? wifiSsid.trim() !== ''
+    : contentType === 'vcard'
+      ? vcardHasAny
+      : input.trim() !== '';
+
+  const vcardEmailError = vcardEmail.trim() && !EMAIL_REGEX.test(vcardEmail) ? 'Invalid email format' : null;
+  const vcardPhoneError = vcardPhone.trim() && !PHONE_REGEX.test(vcardPhone)
+    ? 'Use digits, +, -, spaces, or parentheses'
+    : null;
 
   const generateQr = useCallback(async (
     text: string,
@@ -322,7 +383,7 @@ export default function QRGenerator() {
             1. Enter URL or text
           </label>
           <div className="flex flex-wrap gap-2 mb-3">
-            {(['url', 'text', 'wifi'] as const).map((mode) => (
+            {(['url', 'text', 'wifi', 'vcard'] as const).map((mode) => (
               <button
                 key={mode}
                 type="button"
@@ -333,11 +394,89 @@ export default function QRGenerator() {
                     : 'bg-[var(--surface)] dark:bg-[var(--surface)] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-[var(--shadow-sm)] border border-zinc-200/80 dark:border-zinc-600/80'
                 }`}
               >
-                {mode === 'url' ? 'URL' : mode === 'text' ? 'Plain text' : 'Wi-Fi'}
+                {mode === 'url' ? 'URL' : mode === 'text' ? 'Plain text' : mode === 'wifi' ? 'Wi-Fi' : 'vCard'}
               </button>
             ))}
           </div>
-          {contentType !== 'wifi' ? (
+          {contentType === 'vcard' ? (
+            <div className="space-y-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-100/80 dark:bg-zinc-800/80 p-4 shadow-[var(--shadow-sm)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="vcard-first" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">First name</label>
+                  <input
+                    id="vcard-first"
+                    type="text"
+                    value={vcardFirstName}
+                    onChange={(e) => setVcardFirstName(e.target.value)}
+                    placeholder="John"
+                    className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="vcard-last" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Last name</label>
+                  <input
+                    id="vcard-last"
+                    type="text"
+                    value={vcardLastName}
+                    onChange={(e) => setVcardLastName(e.target.value)}
+                    placeholder="Doe"
+                    className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="vcard-phone" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Phone</label>
+                <input
+                  id="vcard-phone"
+                  type="tel"
+                  value={vcardPhone}
+                  onChange={(e) => setVcardPhone(e.target.value)}
+                  placeholder="+1 234 567 8900"
+                  className={`w-full px-3 py-2.5 rounded-lg border bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm ${
+                    vcardPhoneError ? 'border-red-500 dark:border-red-500' : 'border-zinc-200 dark:border-zinc-700'
+                  }`}
+                />
+                {vcardPhoneError && <p className="text-xs text-red-500 mt-1">{vcardPhoneError}</p>}
+              </div>
+              <div>
+                <label htmlFor="vcard-email" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Email</label>
+                <input
+                  id="vcard-email"
+                  type="email"
+                  value={vcardEmail}
+                  onChange={(e) => setVcardEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  className={`w-full px-3 py-2.5 rounded-lg border bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm ${
+                    vcardEmailError ? 'border-red-500 dark:border-red-500' : 'border-zinc-200 dark:border-zinc-700'
+                  }`}
+                />
+                {vcardEmailError && <p className="text-xs text-red-500 mt-1">{vcardEmailError}</p>}
+              </div>
+              <div>
+                <label htmlFor="vcard-company" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Company</label>
+                <input
+                  id="vcard-company"
+                  type="text"
+                  value={vcardCompany}
+                  onChange={(e) => setVcardCompany(e.target.value)}
+                  placeholder="Acme Inc."
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="vcard-website" className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Website</label>
+                <input
+                  id="vcard-website"
+                  type="url"
+                  value={vcardWebsite}
+                  onChange={(e) => setVcardWebsite(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">Scan to save contact on iPhone or Android.</p>
+            </div>
+          ) : contentType !== 'wifi' ? (
             <input
               id="qr-input"
               type="text"
