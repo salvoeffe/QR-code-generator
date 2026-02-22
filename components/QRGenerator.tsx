@@ -6,7 +6,7 @@ const DEBOUNCE_MS = 400;
 const PREVIEW_MAX_SIZE = 512;
 const SIZES = [256, 384, 512, 1024, 2048, 4096];
 
-type ContentType = 'url' | 'text' | 'wifi' | 'vcard' | 'whatsapp' | 'sms';
+export type ContentType = 'url' | 'text' | 'wifi' | 'vcard' | 'whatsapp' | 'sms';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[\d\s\-+().]+$/;
@@ -177,8 +177,12 @@ async function embedLogoInSvg(
   return result;
 }
 
-export default function QRGenerator() {
-  const [contentType, setContentType] = useState<ContentType>('url');
+type QRGeneratorProps = {
+  initialContentType?: ContentType;
+};
+
+export default function QRGenerator({ initialContentType = 'url' }: QRGeneratorProps) {
+  const [contentType, setContentType] = useState<ContentType>(initialContentType);
   const [input, setInput] = useState('');
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
