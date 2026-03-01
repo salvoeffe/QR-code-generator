@@ -32,11 +32,11 @@ export default function Header() {
           />
           <span>QR Code Generator</span>
         </Link>
-        <div className="flex gap-1 sm:gap-6">
-          <Link href="/" className={navLinkClass(isHome)}>
+        <div className="flex flex-wrap items-center gap-1 sm:gap-6">
+          <Link href="/" className={`${navLinkClass(isHome)} whitespace-nowrap`}>
             QR Generator
           </Link>
-          <Link href="/qr-code-reader" className={navLinkClass(isQRReader)}>
+          <Link href="/qr-code-reader" className={`${navLinkClass(isQRReader)} whitespace-nowrap`}>
             QR Reader
           </Link>
           <Link href="/blog" className={navLinkClass(pathname.startsWith('/blog'))}>
