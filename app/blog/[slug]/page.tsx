@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPosts, getRelatedPosts } from '@/lib/posts';
-import { ArticleJsonLd, FAQJsonLd } from '@/components/JsonLd';
+import { ArticleJsonLd, FAQJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
 import Header from '@/components/Header';
 import CreateQRCodeSidebar from '@/components/CreateQRCodeSidebar';
 import RelatedPosts from '@/components/RelatedPosts';
@@ -103,10 +103,19 @@ export default async function BlogPostPage({
 
   return (
     <div className="min-h-screen">
+      <BreadcrumbJsonLd
+        id="breadcrumb-blog-jsonld"
+        items={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Blog', url: `${baseUrl}/blog` },
+          { name: post.title, url: `${baseUrl}/blog/${post.slug}` },
+        ]}
+      />
       <ArticleJsonLd
         title={post.title}
         description={post.description}
         datePublished={post.date}
+        dateModified={post.dateModified}
         url={`${baseUrl}/blog/${post.slug}`}
       />
       {post.faq && post.faq.length > 0 && (

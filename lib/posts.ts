@@ -5,6 +5,7 @@ export type PostMeta = {
   title: string;
   description: string;
   date: string;
+  dateModified?: string;
   category: Category;
   featured?: boolean;
   faq?: { question: string; answer: string }[];
@@ -44,6 +45,7 @@ const posts: PostMeta[] = [
     title: 'QR Code Use Cases: Menus, Events, Wi-Fi Sharing',
     description: 'Explore practical QR code use cases for menus, events, and Wi-Fi sharing.',
     date: '2024-12-28',
+    dateModified: '2026-02-21',
     category: 'Marketing Tips',
   },
   {
@@ -51,6 +53,7 @@ const posts: PostMeta[] = [
     title: 'QR Code Security: What to Scan and What to Avoid',
     description: 'QR code security guide: what to scan and what to avoid. Stay safe when scanning QR codes and avoid scams.',
     date: '2024-12-25',
+    dateModified: '2026-02-21',
     category: 'Troubleshooting',
   },
   {
@@ -110,6 +113,13 @@ const posts: PostMeta[] = [
     title: 'Restaurant QR Code: Menus and Contactless Ordering',
     description: 'How to use a restaurant QR code for menus, ordering, and contactless service. Free generator and best practices.',
     date: '2026-02-09',
+    category: 'Industry Guides',
+  },
+  {
+    slug: 'restaurant-qr-code-menu-table-ordering',
+    title: 'Restaurant QR Code: Menu, Table, and Ordering',
+    description: 'Use a restaurant QR code for your menu and table ordering. Free QR code menu generator—no sign-up. Best placement and scannability.',
+    date: '2026-02-21',
     category: 'Industry Guides',
   },
   {

@@ -41,3 +41,19 @@ npm start
 | `NEXT_PUBLIC_SITE_URL` | Base URL (e.g. `https://yoursite.com`) |
 | `NEXT_PUBLIC_ADSENSE_CLIENT_ID` | AdSense client ID (after approval) |
 | `NEXT_PUBLIC_ADSENSE_SLOT` | Ad unit slot ID (after approval) |
+
+## Request indexing (Google Search Console)
+
+To help new or updated pages get recrawled and improve impressions:
+
+1. Open [Google Search Console](https://search.google.com/search-console) and select the property.
+2. Use **URL Inspection** (top search bar).
+3. Enter each URL and click **Request indexing** for:
+   - Homepage: `https://generatemyqrcode.com/`
+   - Solution pages: `/vcard-qr-generator`, `/whatsapp-qr-generator`, `/wifi-qr-generator`, `/sms-qr-generator`
+   - Top blog posts that match your target queries (e.g. business card, website QR, security, restaurant QR).
+4. Repeat after major content or schema updates.
+
+## Core Web Vitals
+
+The app uses `min-height` on ad placeholders to reduce layout shift (CLS). For ongoing checks, run [PageSpeed Insights](https://pagespeed.web.dev/) or Lighthouse on the homepage and key pages after deployment.

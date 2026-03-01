@@ -22,6 +22,8 @@ export type PageContent = {
   contentType: ContentType;
   bodyContent: BodySection[];
   howToSteps?: HowToStep[];
+  /** Blog post slugs for contextual internal links on this solution page */
+  relatedBlogSlugs?: string[];
 };
 
 export type ReaderPageContent = {

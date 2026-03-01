@@ -6,7 +6,7 @@ import QRGenerator, { type ContentType } from '@/components/QRGenerator';
 import HowToUseSection from '@/components/HowToUseSection';
 import HomepageFAQAccordion from '@/components/HomepageFAQAccordion';
 import LatestGuides from '@/components/LatestGuides';
-import { WebApplicationJsonLd, FAQJsonLd } from '@/components/JsonLd';
+import { WebApplicationJsonLd, FAQJsonLd, OrganizationJsonLd } from '@/components/JsonLd';
 import AdUnit from '@/components/AdUnit';
 import Header from '@/components/Header';
 import { TOP_HOMEPAGE_FAQS } from '@/lib/faq';
@@ -29,12 +29,15 @@ type GeneratorPageContentProps = {
   hero?: HeroConfig;
   initialContentType?: ContentType;
   latestPosts: PostMeta[];
+  /** Related blog posts to link from solution pages (e.g. from content.relatedBlogSlugs) */
+  relatedPosts?: { slug: string; title: string }[];
 };
 
 export default function GeneratorPageContent({
   hero = DEFAULT_HERO,
   initialContentType,
   latestPosts,
+  relatedPosts,
 }: GeneratorPageContentProps) {
   const [activeContentType, setActiveContentType] = useState<ContentType>(initialContentType ?? 'url');
 
@@ -47,6 +50,7 @@ export default function GeneratorPageContent({
   return (
     <div className="min-h-screen relative">
       <WebApplicationJsonLd />
+      <OrganizationJsonLd />
       <FAQJsonLd items={TOP_HOMEPAGE_FAQS} id="faq-homepage-jsonld" />
       <div
         className="absolute inset-0 top-0 left-0 right-0 h-[40vh] max-h-[320px] pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
@@ -97,6 +101,21 @@ export default function GeneratorPageContent({
 
           <HowToUseSection steps={howToSteps} />
         </div>
+
+        {relatedPosts && relatedPosts.length > 0 && (
+          <section className="mt-10 sm:mt-12">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Related guides</h3>
+            <ul className="space-y-2">
+              {relatedPosts.map(({ slug, title }) => (
+                <li key={slug}>
+                  <Link href={`/blog/${slug}`} className="text-emerald-600 dark:text-emerald-500 hover:underline">
+                    {title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="mt-10 sm:mt-12 flex justify-center">
           <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT} format="horizontal" className="w-full max-w-[728px]" />

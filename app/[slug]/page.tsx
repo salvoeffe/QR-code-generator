@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
-import { getPosts } from '@/lib/posts';
+import { getPosts, getPostBySlug } from '@/lib/posts';
+import type { PostMeta } from '@/lib/posts';
 import { getPageContent } from '@/lib/content';
 import GeneratorPageContent from '@/components/GeneratorPageContent';
+import { BreadcrumbJsonLd } from '@/components/JsonLd';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
 
@@ -33,8 +35,22 @@ export default async function SlugPage({ params }: PageProps) {
   const allPosts = await getPosts();
   const latestPosts = allPosts.slice(0, 3);
 
+  const relatedPostsResolved =
+    content.relatedBlogSlugs?.length
+      ? (await Promise.all(content.relatedBlogSlugs.map((s) => getPostBySlug(s))))
+          .filter((p): p is PostMeta => p != null)
+          .map((p) => ({ slug: p.slug, title: p.title }))
+      : undefined;
+
   return (
-    <GeneratorPageContent
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: baseUrl },
+          { name: content.h1, url: `${baseUrl}/${slug}` },
+        ]}
+      />
+      <GeneratorPageContent
       hero={{
         title: content.h1,
         subtitle: content.heroSubtitle,
@@ -42,6 +58,8 @@ export default async function SlugPage({ params }: PageProps) {
       }}
       initialContentType={content.contentType}
       latestPosts={latestPosts}
+      relatedPosts={relatedPostsResolved}
     />
+    </>
   );
 }
