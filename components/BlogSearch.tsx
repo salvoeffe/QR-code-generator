@@ -26,15 +26,6 @@ function filterPosts(posts: PostMeta[], query: string): PostMeta[] {
   );
 }
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
 export default function BlogSearch({
   posts,
   onQueryChange,
@@ -43,7 +34,6 @@ export default function BlogSearch({
   onQueryChange?: (query: string) => void;
 }) {
   const [query, setQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
   const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
@@ -54,63 +44,43 @@ export default function BlogSearch({
   const hasQuery = debouncedQuery.length > 0;
 
   const handleClear = useCallback(() => {
-    if (query) {
-      setQuery('');
-      onQueryChange?.('');
-    } else {
-      setIsOpen(false);
-    }
-  }, [query, onQueryChange]);
-
-  const handleToggle = useCallback(() => {
-    if (isOpen) {
-      setQuery('');
-      onQueryChange?.('');
-    }
-    setIsOpen((prev) => !prev);
-  }, [isOpen, onQueryChange]);
+    setQuery('');
+    onQueryChange?.('');
+  }, [onQueryChange]);
 
   return (
     <div className="mb-12">
-      {!isOpen ? (
-        <button
-          type="button"
-          onClick={handleToggle}
-          className="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-          aria-label="Open search"
-        >
-          <SearchIcon className="w-4 h-4" />
-          Search guides
-        </button>
-      ) : (
-        <div className="max-w-md">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search guides and troubleshooting..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              autoFocus
-              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 py-2 pl-3 pr-10 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500"
-              aria-label="Search blog posts"
-            />
+      <div className="max-w-md">
+        <div className="relative">
+          <input
+            type="search"
+            placeholder="Search guides and troubleshooting..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 py-2 pl-3 pr-10 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500"
+            aria-label="Search blog posts"
+          />
+          {query.length > 0 && (
             <button
               type="button"
               onClick={handleClear}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1"
-              aria-label={query ? 'Clear search' : 'Close search'}
+              aria-label="Clear search"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6 6 18" />
                 <path d="m6 6 12 12" />
               </svg>
             </button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {hasQuery && isOpen && (
-        <div className="mt-4 max-w-md">
+      {hasQuery && (
+        <div className="mt-4 max-w-2xl">
+          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+            {results.length > 0 ? `Search results for "${debouncedQuery}"` : `No results for "${debouncedQuery}"`}
+          </p>
           {results.length > 0 ? (
             <ul className="space-y-2">
               {results.map((post) => (
@@ -140,7 +110,7 @@ export default function BlogSearch({
             </ul>
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400 py-4">
-              No results for &quot;{debouncedQuery}&quot;
+              Try a different term or browse by category below.
             </p>
           )}
         </div>

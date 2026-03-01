@@ -1,6 +1,29 @@
 import Link from 'next/link';
+import type { Category } from '@/lib/posts';
 
-export default function CreateQRCodeSidebar() {
+function getCtaForPost(category: Category, slug: string): { label: string; href: string } {
+  const s = slug.toLowerCase();
+  if (s.includes('restaurant') || s.includes('menu')) {
+    return { label: 'Create Menu QR', href: '/' };
+  }
+  if (s.includes('wifi') || s.includes('wi-fi')) {
+    return { label: 'Create Wi-Fi QR', href: '/wifi-qr-generator' };
+  }
+  if (s.includes('vcard') || s.includes('business-card')) {
+    return { label: 'Create vCard QR', href: '/vcard-qr-generator' };
+  }
+  return { label: 'Get Started', href: '/' };
+}
+
+export default function CreateQRCodeSidebar({
+  category,
+  slug,
+}: {
+  category: Category;
+  slug: string;
+}) {
+  const cta = getCtaForPost(category, slug);
+
   return (
     <aside>
       <div className="sticky top-24 rounded-2xl bg-[var(--surface-elevated)] shadow-[var(--shadow-sm)] border border-zinc-200/60 dark:border-zinc-700/50 p-5 overflow-hidden">
@@ -11,10 +34,10 @@ export default function CreateQRCodeSidebar() {
           Free, instant, no sign-up.
         </p>
         <Link
-          href="/"
+          href={cta.href}
           className="mt-4 inline-flex items-center justify-center w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 transition-colors duration-200"
         >
-          Get Started
+          {cta.label}
         </Link>
       </div>
     </aside>

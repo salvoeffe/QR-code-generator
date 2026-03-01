@@ -1,3 +1,6 @@
+import path from 'path';
+import { readFile } from 'fs/promises';
+
 export type Category = 'Troubleshooting' | 'Marketing Tips' | 'Industry Guides' | 'Guides & Comparisons';
 
 export type PostMeta = {
@@ -8,6 +11,7 @@ export type PostMeta = {
   dateModified?: string;
   category: Category;
   featured?: boolean;
+  featuredImage?: string;
   faq?: { question: string; answer: string }[];
 };
 
@@ -116,10 +120,31 @@ const posts: PostMeta[] = [
     category: 'Industry Guides',
   },
   {
+    slug: 'free-qr-code-menu-generator',
+    title: 'Free QR Code Menu Generator: No Sign-Up (2026)',
+    description: 'Create a free QR code for your restaurant menu in seconds. No sign-up, no expiration. Paste your menu URL and download—ideal for cafes, bars, and bistros.',
+    date: '2026-03-01',
+    category: 'Industry Guides',
+  },
+  {
+    slug: 'how-to-test-qr-code-before-printing',
+    title: 'How to Test a QR Code Before You Print Hundreds',
+    description: 'A practical checklist to verify your QR code works before a big print run: scan on multiple devices, test the URL, print one sample, and avoid costly reprints.',
+    date: '2026-03-01',
+    category: 'Troubleshooting',
+    faq: [
+      { question: 'Do I need a special app to test a QR code?', answer: 'No. Modern phone cameras read QR codes natively. For decoding the raw content (e.g. to verify a vCard or URL), you can use an online reader that runs in the browser and doesn\'t send your image to a server.' },
+      { question: 'How many devices should I test on?', answer: 'At least two—your own phone and one other (ideally a different OS). For high-volume or public placements (menus, signs, flyers), testing on two or three devices catches most real-world issues before print.' },
+      { question: 'What if the code works on screen but not when printed?', answer: 'Usually the print is too small, too low-contrast, or blurred (e.g. upscaled from a small image). Print one sample at final size and material, then scan from the distance users will use. If it fails, increase the code size, improve contrast, or export at higher resolution and avoid stretching the image.' },
+      { question: 'Can I test a QR code without printing it?', answer: 'Yes. Scan it from your screen with your phone, and use an online reader to decode the payload. For final confidence, though, print one sample—screen tests don\'t catch print-specific issues like gloss, blur, or size.' },
+    ],
+  },
+  {
     slug: 'restaurant-qr-code-menu-table-ordering',
     title: 'Restaurant QR Code: Menu, Table, and Ordering',
     description: 'Use a restaurant QR code for your menu and table ordering. Free QR code menu generator—no sign-up. Best placement and scannability.',
     date: '2026-02-21',
+    dateModified: '2026-03-01',
     category: 'Industry Guides',
     faq: [
       { question: 'Do guests need an app to scan the menu?', answer: 'No. Every smartphone camera reads QR codes natively. Guests point, scan, and the menu opens in the browser. No app download required.' },
@@ -158,6 +183,11 @@ const posts: PostMeta[] = [
 ];
 
 const CATEGORY_ORDER: Category[] = ['Troubleshooting', 'Marketing Tips', 'Industry Guides', 'Guides & Comparisons'];
+
+export async function readPostContent(slug: string): Promise<string> {
+  const filePath = path.join(process.cwd(), 'content', `${slug}.mdx`);
+  return readFile(filePath, 'utf-8');
+}
 
 export async function getPosts(): Promise<PostMeta[]> {
   return [...posts].sort((a, b) => (b.date > a.date ? 1 : -1));

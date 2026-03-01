@@ -29,12 +29,14 @@ export function ArticleJsonLd({
   datePublished,
   dateModified,
   url,
+  image,
 }: {
   title: string;
   description: string;
   datePublished: string;
   dateModified?: string;
   url: string;
+  image?: string;
 }) {
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -56,7 +58,7 @@ export function ArticleJsonLd({
         url: `${siteUrl}/favicon.ico`,
       },
     },
-    image: `${siteUrl}/favicon.ico`,
+    image: image ? (image.startsWith('http') ? image : `${siteUrl}${image.startsWith('/') ? '' : '/'}${image}`) : `${siteUrl}/favicon.ico`,
   };
 
   return (

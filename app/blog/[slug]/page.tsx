@@ -2,9 +2,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPosts, getRelatedPosts } from '@/lib/posts';
+import { getReadingTimeMinutes } from '@/lib/reading-time';
 import { ArticleJsonLd, FAQJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
 import Header from '@/components/Header';
 import CreateQRCodeSidebar from '@/components/CreateQRCodeSidebar';
+import BlogReadingProgress from '@/components/BlogReadingProgress';
 import RelatedPosts from '@/components/RelatedPosts';
 import ShareButtons from '@/components/ShareButtons';
 import TableOfContents from '@/components/TableOfContents';
@@ -100,9 +102,11 @@ export default async function BlogPostPage({
 
   const relatedPosts = await getRelatedPosts(slug);
   const headings = extractHeadings(content);
+  const readingTimeMinutes = getReadingTimeMinutes(content);
 
   return (
     <div className="min-h-screen">
+      <BlogReadingProgress />
       <BreadcrumbJsonLd
         id="breadcrumb-blog-jsonld"
         items={[
@@ -117,6 +121,7 @@ export default async function BlogPostPage({
         datePublished={post.date}
         dateModified={post.dateModified}
         url={`${baseUrl}/blog/${post.slug}`}
+        image={post.featuredImage}
       />
       {post.faq && post.faq.length > 0 && (
         <FAQJsonLd items={post.faq} />
@@ -141,6 +146,7 @@ export default async function BlogPostPage({
                   day: 'numeric',
                 })}
               </time>
+              <span className="text-zinc-500 text-sm ml-2">· {readingTimeMinutes} min read</span>
               <ShareButtons
                 url={`${baseUrl}/blog/${slug}`}
                 title={post.title}
@@ -237,9 +243,9 @@ export default async function BlogPostPage({
               <RelatedPosts posts={relatedPosts} currentSlug={slug} />
             </article>
           </div>
-          <div className="space-y-6">
+          <div className="space-y-6 self-start sticky top-24">
             <TableOfContents headings={headings} />
-            <CreateQRCodeSidebar />
+            <CreateQRCodeSidebar category={post.category} slug={post.slug} />
           </div>
         </div>
       </main>

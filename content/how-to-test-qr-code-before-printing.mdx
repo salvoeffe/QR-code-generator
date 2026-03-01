@@ -1,0 +1,56 @@
+# How to Test a QR Code Before You Print Hundreds
+
+Printing hundreds of table tents, flyers, or business cards only to discover your QR code doesn’t work is expensive and embarrassing. A few minutes of testing up front saves reprints and support headaches. Here’s a straightforward way to verify a QR code before you commit to a big print run.
+
+## 1. Scan It on Your Phone
+
+Right after you generate the code, scan it with the phone you carry every day. Open the camera app (no separate QR app needed on modern iPhones and Android), point at the code on your screen, and tap the notification or banner that appears. Does it open the right URL, contact, or Wi‑Fi prompt? If it fails on your own device, it will fail for others. If you use a custom design or logo in the middle, test that version too—logos can reduce the code’s error correction and make it fussier in low light or at a distance.
+
+## 2. Try Another Device
+
+Your phone might be forgiving. Grab a second phone—a colleague’s, an older model, or a different OS—and scan again. Some cameras focus or expose differently; a code that works on one device can fail on another. If you’re aiming at a broad audience, two devices is a minimum. For table tents or signage, try at least one Android and one iPhone if you can.
+
+## 3. Test the Destination in a Browser
+
+The QR code only encodes a string. If that string is a URL, open it in a normal browser (desktop or mobile). Check that the page loads, doesn’t require login, and looks right on a small screen. Redirects can break on first load or from certain referrers; if the link is flaky in the browser, it’ll be flaky when people scan. For vCard or Wi‑Fi codes, confirm the payload: use our [QR code reader](/qr-code-reader) to decode the code and spot-check the text. You upload the image or point your camera at it; decoding runs in the browser and doesn’t send data anywhere, so you can verify without leaving your desk.
+
+## 4. Test at Real Distance and Angle
+
+A code that works when your phone is six inches away can fail when it’s on a table tent and the guest is across the table. Print a single copy at the size you’ll use—or tape a printout to a stand-in—and scan from the distance and angle a real user would use. For table tents, that’s often 18–24 inches and slightly off-axis. If it doesn’t read reliably, the code is too small or the contrast isn’t enough. Size up or switch to higher contrast before you order the full run. For more on size and contrast, see [Why Is My QR Code Not Scanning?](/blog/why-qr-code-not-scanning).
+
+## 5. Print One Sample First
+
+Even when the digital file scans perfectly, print can introduce blur, poor contrast, or gloss that kills readability. Run one physical sample on the same material and printer (or same vendor) you’ll use for the full order. Scan that sample in the same lighting where the final pieces will live—e.g. restaurant table lighting, outdoor sun, or indoor fluorescents. If the sample fails, fix the file or the print specs (resolution, laminate, matte vs gloss) before you approve hundreds more.
+
+## 6. Re-check After Any Change
+
+If you change the destination URL or the landing page, test again. Static QR codes don’t change when you edit a webpage—the code still points at the same URL—but if you moved the page, added a redirect, or switched domains, the old code will now point to the wrong place or a 404. Quick scan and click-through after any change keeps you from shipping broken codes.
+
+## Quick Checklist
+
+Before you send the job to the printer:
+
+- [ ] Scanned on your own phone and the correct action happens (open URL, save contact, join Wi‑Fi, etc.)
+- [ ] Scanned on at least one other device (ideally different OS)
+- [ ] Opened the URL in a browser and confirmed the page loads and looks right on mobile
+- [ ] Decoded the code with a reader (e.g. [our reader](/qr-code-reader)) and verified the payload if it’s not a simple URL
+- [ ] Printed one sample at final size and scanned from the real viewing distance and angle
+- [ ] Tested in the same lighting (or similar) as the final placement
+
+If all of that passes, you’re in good shape. If something fails, fix it before you print in bulk. For common causes of scan failures and how to fix them, see [Why Is My QR Code Not Scanning?](/blog/why-qr-code-not-scanning). For size and resolution guidance, check [QR Code Best Practices](/blog/qr-code-best-practices).
+
+[Generate a QR code](/) and [test it with our reader](/qr-code-reader) before you print.
+
+## FAQ
+
+**Do I need a special app to test a QR code?**  
+No. Modern phone cameras read QR codes natively. For decoding the raw content (e.g. to verify a vCard or URL), you can use an online reader like [ours](/qr-code-reader), which runs in the browser and doesn’t send your image to a server.
+
+**How many devices should I test on?**  
+At least two—your own phone and one other (ideally a different OS). For high-volume or public placements (menus, signs, flyers), testing on two or three devices catches most real-world issues before print.
+
+**What if the code works on screen but not when printed?**  
+Usually the print is too small, too low-contrast, or blurred (e.g. upscaled from a small image). Print one sample at final size and material, then scan from the distance users will use. If it fails, increase the code size, improve contrast, or export at higher resolution (e.g. 512px or more) and avoid stretching the image.
+
+**Can I test a QR code without printing it?**  
+Yes. Scan it from your screen with your phone, and use an online reader to decode the payload. For final confidence, though, print one sample—screen tests don’t catch print-specific issues like gloss, blur, or size.
