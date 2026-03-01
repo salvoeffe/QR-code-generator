@@ -140,6 +140,19 @@ const posts: PostMeta[] = [
     ],
   },
   {
+    slug: 'where-to-put-qr-codes-flyers-posters',
+    title: 'Where to Put QR Codes on Flyers, Posters, and Print Ads',
+    description: 'Placement and size tips so QR codes on flyers, posters, and print ads get scanned: where to put them, how big to make them, and how to label them.',
+    date: '2026-03-01',
+    category: 'Marketing Tips',
+    faq: [
+      { question: 'Where should the QR code go on a flyer?', answer: 'Put it where people look first: next to the headline or main offer, above the fold. Avoid the bottom corner or a tiny footer. Add a short line like "Scan for discount" or "Get the menu" so the benefit is clear.' },
+      { question: 'How big should a QR code be on a poster?', answer: 'At least 2–4 inches per side for something people view from a few feet away. For billboards or large outdoor, think 3+ feet per side and export at high resolution (e.g. 1024px or more) so it stays sharp when enlarged.' },
+      { question: 'Can I put more than one QR code on a flyer?', answer: 'Yes, if each has a distinct purpose (e.g. one for menu, one for Wi-Fi) and each is clearly labeled. For simple offers, one code is usually better—less clutter and no confusion about which to scan.' },
+      { question: 'Why isn\'t my flyer QR code scanning?', answer: 'Common causes: code too small for the viewing distance, low contrast (e.g. gray on white), or no quiet zone (margin) around the code. Size it for arm\'s length or farther, use dark on light, and test a printed sample before the full run.' },
+    ],
+  },
+  {
     slug: 'restaurant-qr-code-menu-table-ordering',
     title: 'Restaurant QR Code: Menu, Table, and Ordering',
     description: 'Use a restaurant QR code for your menu and table ordering. Free QR code menu generator—no sign-up. Best placement and scannability.',

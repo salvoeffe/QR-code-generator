@@ -1,34 +1,34 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 import { getPosts } from '@/lib/posts';
-import { QR_SOLUTIONS } from '@/lib/content';
+import contentData from '@/content.json';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
 
-const staticPages = ['', '/blog', '/faq', '/privacy', '/terms', '/about', '/qr-code-reader'];
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPosts();
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+  ];
 
-  const staticUrls: MetadataRoute.Sitemap = staticPages.map((path) => ({
-    url: `${baseUrl}${path || '/'}`,
-    lastModified: new Date(),
-    changeFrequency: path === '' ? 'daily' : ('weekly' as const),
-    priority: path === '' ? 1 : 0.8,
-  }));
-
-  const solutionUrls: MetadataRoute.Sitemap = QR_SOLUTIONS.map(({ slug }) => ({
+  const contentSlugs = Object.keys(contentData as Record<string, unknown>);
+  const contentRoutes: MetadataRoute.Sitemap = contentSlugs.map((slug) => ({
     url: `${baseUrl}/${slug}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
+    changeFrequency: 'monthly' as const,
+    priority: slug === 'url' ? 0.95 : 0.8,
   }));
 
-  const blogUrls: MetadataRoute.Sitemap = posts.map((post) => ({
+  const posts = await getPosts();
+  const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.dateModified ?? post.date),
-    changeFrequency: 'weekly' as const,
+    lastModified: new Date(post.dateModified || post.date),
+    changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));
 
-  return [...staticUrls, ...solutionUrls, ...blogUrls];
+  return [...staticRoutes, ...contentRoutes, ...blogRoutes];
 }
