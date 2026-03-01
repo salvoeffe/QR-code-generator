@@ -12,7 +12,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.com';
 
 function slugifyHeading(text: string): string {
   return text
@@ -67,6 +67,9 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.description,
+    alternates: {
+      canonical: `${baseUrl}/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,

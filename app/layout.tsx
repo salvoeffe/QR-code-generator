@@ -23,16 +23,16 @@ export const metadata: Metadata = {
     template: "%s | QR Code Generator",
   },
   description:
-    "Create QR codes for your website, link, or any text—free, fast, and no sign-up required. Download as PNG instantly.",
+    "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text—fast and private. Download as PNG or SVG instantly.",
   openGraph: {
-    title: "Free QR Code Generator | Create QR Codes Online",
-    description: "Create QR codes for your website, link, or any text—free, fast, and no sign-up required.",
+    title: "Free QR Code Generator | No Sign Up | Create QR Codes Online",
+    description: "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text. Download as PNG or SVG instantly.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free QR Code Generator | Create QR Codes Online",
-    description: "Create QR codes for your website, link, or any text—free, fast, and no sign-up required.",
+    title: "Free QR Code Generator | No Sign Up | Create QR Codes Online",
+    description: "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text. Download as PNG or SVG instantly.",
   },
   robots: {
     index: true,

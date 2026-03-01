@@ -45,10 +45,18 @@ export default function HowToUseSection({ steps }: HowToUseSectionProps) {
         Looking for something specific? Try our{' '}
         <Link href="/vcard-qr-generator" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
           vCard Generator
-        </Link>{' '}
-        or{' '}
+        </Link>
+        ,{' '}
         <Link href="/whatsapp-qr-generator" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
           WhatsApp Link Tool
+        </Link>
+        ,{' '}
+        <Link href="/blog/how-to-create-qr-code-for-website" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+          how to create a QR code for your website
+        </Link>
+        , or{' '}
+        <Link href="/blog/qr-codes-restaurants" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+          restaurant QR code menus
         </Link>
         .
       </p>

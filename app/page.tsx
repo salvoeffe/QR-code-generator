@@ -5,8 +5,10 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.co
 
 export const metadata = {
   title: {
-    absolute: 'Free QR Code Generator — No Sign-Up, Instant Download',
+    absolute: 'Free QR Code Generator — No Sign Up, Instant Download',
   },
+  description:
+    'Free QR code generator with no sign up required. Create QR codes for your website, link, or any text. Download as PNG or SVG instantly.',
   alternates: {
     canonical: baseUrl,
   },

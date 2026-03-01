@@ -13,8 +13,8 @@ export type PostMeta = {
 const posts: PostMeta[] = [
   {
     slug: 'how-to-create-qr-code-for-website',
-    title: 'How to Create a QR Code for Your Website (Free)',
-    description: 'Step-by-step guide to creating a free QR code for your website in minutes.',
+    title: 'How to Get a QR Code for Your Website (Free)',
+    description: 'Learn how to make a QR code for your website in minutes. Free, no sign-up. Step-by-step guide with instant download.',
     date: '2025-01-15',
     category: 'Guides & Comparisons',
   },
@@ -34,8 +34,8 @@ const posts: PostMeta[] = [
   },
   {
     slug: 'qr-code-business-card',
-    title: 'How to Add a QR Code to Your Business Card',
-    description: 'Add a professional QR code to your business card to share your contact info and portfolio.',
+    title: 'Business Card QR Code: How to Add One (Free)',
+    description: 'Create a business card QR code for free. Add your contact info, print on cards, and share instantly. No sign-up.',
     date: '2025-01-01',
     category: 'Industry Guides',
   },
@@ -49,7 +49,7 @@ const posts: PostMeta[] = [
   {
     slug: 'qr-code-security',
     title: 'QR Code Security: What to Scan and What to Avoid',
-    description: 'Stay safe when scanning QR codes. Learn what to look for and what to avoid.',
+    description: 'QR code security guide: what to scan and what to avoid. Stay safe when scanning QR codes and avoid scams.',
     date: '2024-12-25',
     category: 'Troubleshooting',
   },
@@ -107,8 +107,8 @@ const posts: PostMeta[] = [
   },
   {
     slug: 'qr-codes-restaurants',
-    title: 'QR Codes for Restaurants: Menus and Contactless Ordering',
-    description: 'How restaurants use QR codes for menus, ordering, and contactless service.',
+    title: 'Restaurant QR Code: Menus and Contactless Ordering',
+    description: 'How to use a restaurant QR code for menus, ordering, and contactless service. Free generator and best practices.',
     date: '2026-02-09',
     category: 'Industry Guides',
   },
