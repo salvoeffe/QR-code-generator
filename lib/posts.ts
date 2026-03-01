@@ -121,6 +121,13 @@ const posts: PostMeta[] = [
     description: 'Use a restaurant QR code for your menu and table ordering. Free QR code menu generator—no sign-up. Best placement and scannability.',
     date: '2026-02-21',
     category: 'Industry Guides',
+    faq: [
+      { question: 'Do guests need an app to scan the menu?', answer: 'No. Every smartphone camera reads QR codes natively. Guests point, scan, and the menu opens in the browser. No app download required.' },
+      { question: 'How do I update my menu without reprinting the QR code?', answer: 'If your QR code points to a hosted PDF or webpage, you update the file or page—not the code. The URL stays the same, so the QR code stays the same. Re-upload the PDF or edit the page, and every table gets the new menu.' },
+      { question: 'Is a PDF menu better than a webpage?', answer: 'It depends. A PDF is easier: design once, upload, done. A webpage can load faster and adapt to screen size, but requires more setup. For most restaurants, a well-designed PDF hosted on your site or cloud storage is the simplest and most reliable option.' },
+      { question: 'What size should the QR code be for a table tent?', answer: 'Aim for at least 2–3 inches per side (about 512px at print resolution). In dim lighting or at a distance, go larger—3 inches or more—to improve scan success.' },
+      { question: 'Can one QR code do both menu and ordering?', answer: 'Only if the same platform serves both (e.g. a menu page that also has an "order" button). Otherwise use one code for the menu (e.g. from our generator) and a separate code from your ordering platform for "order here."' },
+    ],
   },
   {
     slug: 'restaurant-qr-code-menu-guide-2026',
