@@ -1,0 +1,47 @@
+# Can You Edit a QR Code After Printing?
+
+Short answer: you can't change the printed pattern. You can sometimes change where that pattern sends people—without reprinting—if you control the URL or use a dynamic provider. Here's how it works.
+
+## Static QR Codes: The Pattern Is Fixed
+
+A static QR code encodes one fixed string: a URL, vCard, or other data. What you print is that string turned into a pattern. You can't "edit" the image later. The pattern will always decode to the same URL.
+
+You can, however, change where that URL sends people—without touching the printed code. If the QR code points to a URL you control (e.g. yoursite.com/promo), you can set up a redirect on your server: when someone visits that URL, your site sends them to a new destination. Same printed code, new landing page. No reprint needed. So "editing" in practice means: keep the URL the same, change what happens when someone visits it. For a static code from our [free generator](/), the code itself never changes; only the destination at that URL can.
+
+## Dynamic QR Codes: Editable Destination
+
+Dynamic QR codes don't store the final URL in the pattern. They store a short link that goes through a provider's server. In the provider's dashboard you can point that same code to a new URL anytime. Same print, new destination—as long as the provider is still running and your account is active.
+
+The tradeoff: you depend on that provider. If they shut down, get acquired, or you stop paying, the redirect can break and your printed code may lead nowhere. For long-term print, static plus a redirect on your own domain is often safer. For the full comparison, see [Static vs Dynamic QR Codes: Which One Do You Need?](/blog/static-vs-dynamic-qr-codes).
+
+## When You Have to Reprint
+
+You'll need to reprint if:
+
+**You need a different URL structure.** The code points to oldpage.com and you want it to go to completely differentpage.com with no redirect in place. If you can't or won't set up a redirect from the old URL to the new one, generate a new code and reprint.
+
+**You're switching domains with no redirect.** You're abandoning the old domain and not setting up redirects. Everyone scanning the old code would hit a dead link, so you need a new code for the new domain and new print.
+
+**You're leaving a dynamic provider.** If you stop using that service and don't own the short URL, the code breaks. You'd need a new static code (or a new dynamic provider) and reprint.
+
+**You need a different type of content.** The code is a URL but you want a vCard, Wi‑Fi, or something else. The pattern encodes the data type. You have to generate a new code and reprint.
+
+If you control the URL and can add a redirect, you often don't need to reprint. For scan issues (code not reading), see [Why Is My QR Code Not Scanning?](/blog/why-qr-code-not-scanning).
+
+## Practical Takeaway
+
+Use a URL you control and redirects when you want long-term flexibility without reprinting. Generate a static code to that URL with our [QR code generator](/), and when you change campaigns or pages, point the old URL to the new destination. If you need to change the destination very often and are okay depending on a provider, a dynamic code is editable from their dashboard—but for permanent print, static plus your own redirects is usually the most reliable.
+
+## FAQ
+
+**Can I change a QR code after printing?**  
+You can't change the printed pattern. You can change where it sends people by either (1) setting up a redirect on the URL the code points to (if you control it), or (2) using a dynamic QR code and changing the destination in the provider's dashboard. Both approaches keep the same printed code; only the destination changes.
+
+**What's the difference between static and dynamic for editing?**  
+Static: the pattern is fixed. To "edit" you change what happens when someone visits that URL (e.g. a redirect to a new page). Dynamic: the provider lets you point the same code to a new URL from their dashboard. Static doesn't depend on a third party; dynamic does.
+
+**Can I use a redirect to change where my QR code goes?**  
+Yes. If the QR code points to a URL you control, set up a 301 redirect from that URL to the new destination. Everyone who scans the existing code will be sent to the new page. No need to reprint.
+
+**When do I have to reprint?**  
+Reprint when you need a different URL with no redirect (e.g. new domain, no redirect), you're leaving a dynamic provider and the link will die, or you need a different type of content (e.g. vCard instead of URL). If you can redirect the old URL to the new one, you usually don't need to reprint.

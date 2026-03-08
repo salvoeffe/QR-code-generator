@@ -193,6 +193,58 @@ const posts: PostMeta[] = [
     date: '2026-02-07',
     category: 'Industry Guides',
   },
+  {
+    slug: 'how-long-do-qr-codes-last',
+    title: 'How Long Do QR Codes Last? (Static vs Dynamic)',
+    description: 'Do QR codes expire? Static QR codes last as long as the link works. Dynamic codes depend on the provider. When to expect breakage and how to avoid it.',
+    date: '2026-03-15',
+    category: 'Troubleshooting',
+    faq: [
+      { question: 'Do static QR codes expire?', answer: 'No. A static QR code encodes a fixed URL or other data. It has no expiration date and no server to turn it off. It works until the destination (e.g. the webpage) stops working—for example, if the page is removed or the domain changes without a redirect.' },
+      { question: 'Do dynamic QR codes expire?', answer: 'They can. Dynamic codes rely on a provider\'s server to redirect to the current destination. If the provider shuts down, discontinues the link, or you stop paying, the code may break. Check the provider\'s terms and longevity before using dynamic codes for long-term print.' },
+      { question: 'What happens if I change my domain?', answer: 'If your QR code points to a URL on the old domain, set up a 301 redirect from that old URL to the new one. Then the same printed code keeps working. Without a redirect, scanners will hit a dead or wrong page.' },
+      { question: 'How do I make my QR code last?', answer: 'Use a URL you control on your own domain. Avoid relying on link shorteners or third-party redirect URLs for permanent print. When you change or move pages, add redirects so the old URL still resolves. Test the code periodically and after any site changes.' },
+    ],
+  },
+  {
+    slug: 'can-you-edit-qr-code-after-printing',
+    title: 'Can You Edit a QR Code After Printing?',
+    description: 'Static QR codes can\'t be edited after printing—but you can change where the link goes with a redirect. Dynamic codes are editable. When you need to reprint.',
+    date: '2026-03-15',
+    category: 'Troubleshooting',
+    faq: [
+      { question: 'Can I change a QR code after printing?', answer: 'You can\'t change the printed pattern. You can change where it sends people by either (1) setting up a redirect on the URL the code points to (if you control it), or (2) using a dynamic QR code and changing the destination in the provider\'s dashboard. Both approaches keep the same printed code; only the destination changes.' },
+      { question: 'What\'s the difference between static and dynamic for editing?', answer: 'Static: the pattern is fixed. To "edit" you change what happens when someone visits that URL (e.g. a redirect to a new page). Dynamic: the provider lets you point the same code to a new URL from their dashboard. Static doesn\'t depend on a third party; dynamic does.' },
+      { question: 'Can I use a redirect to change where my QR code goes?', answer: 'Yes. If the QR code points to a URL you control, set up a 301 redirect from that URL to the new destination. Everyone who scans the existing code will be sent to the new page. No need to reprint.' },
+      { question: 'When do I have to reprint?', answer: 'Reprint when you need a different URL with no redirect (e.g. new domain, no redirect), you\'re leaving a dynamic provider and the link will die, or you need a different type of content (e.g. vCard instead of URL). If you can redirect the old URL to the new one, you usually don\'t need to reprint.' },
+    ],
+  },
+  {
+    slug: 'how-to-get-qr-code-for-website-2-minutes',
+    title: 'How to Get a QR Code for Your Website in 2 Minutes',
+    description: 'Get a free QR code for your website in under 2 minutes. No sign-up. Paste your URL, choose size, download. Works for landing pages, portfolios, and homepages.',
+    date: '2026-03-15',
+    category: 'Guides & Comparisons',
+    faq: [
+      { question: 'Do I need an account to get a QR code for my website?', answer: 'No. Many generators, including ours, let you paste a URL and download the code without signing up. You get a static QR code that encodes your link directly.' },
+      { question: 'What size should I use for a website QR code?', answer: 'For digital use (screens, email), 256px or 384px is usually enough. For print (business cards, flyers, table tents), use at least 512px so it stays sharp and readable at arm\'s length or farther.' },
+      { question: 'Can I use it for a specific page or just the homepage?', answer: 'You can use any URL—homepage, landing page, product page, or event page. Paste the exact URL you want people to open. The code will point to that page.' },
+      { question: 'Does the QR code expire?', answer: 'Static QR codes don\'t expire. They last as long as the URL works. If you remove the page or change the URL without a redirect, the code will break; otherwise it keeps working.' },
+    ],
+  },
+  {
+    slug: 'free-whatsapp-qr-code-how-to-create',
+    title: 'Free WhatsApp QR Code: How to Create One (No App Required)',
+    description: 'Create a free WhatsApp QR code in under a minute. No sign-up. Add your number and optional message; download and use on menus, flyers, or support. Works on iPhone and Android.',
+    date: '2026-03-15',
+    category: 'Industry Guides',
+    faq: [
+      { question: 'Do I need WhatsApp Business to use a WhatsApp QR code?', answer: 'No. A standard WhatsApp number is enough. You enter your number (with country code) in the generator; the code opens a chat with that number. WhatsApp Business is optional and useful if you want business profile features, but not required for the QR code.' },
+      { question: 'Can I add a default message to the QR code?', answer: 'Yes. Most WhatsApp QR generators let you add an optional pre-filled message. When someone scans, WhatsApp opens with your number and that message ready to send. Useful for "Order here," "Support," or "I have a question."' },
+      { question: 'What size should the WhatsApp QR code be for print?', answer: 'Use at least 512px for print (menus, table tents, flyers) so it scans reliably at arm\'s length or farther. For digital use, 256px is usually enough.' },
+      { question: 'Do guests need an app to scan it?', answer: 'They need WhatsApp installed (or they can open the link in a browser). The QR code opens a wa.me link that launches WhatsApp with your number. If they don\'t have the app, they\'ll be prompted to install it or continue in the browser.' },
+    ],
+  },
 ];
 
 const CATEGORY_ORDER: Category[] = ['Troubleshooting', 'Marketing Tips', 'Industry Guides', 'Guides & Comparisons'];

@@ -1,0 +1,51 @@
+# How Long Do QR Codes Last? (Static vs Dynamic)
+
+A lot of people assume QR codes expire. The short answer: it depends on the type. Static QR codes don't have a built-in expiration—they last as long as the URL or data they point to keeps working. Dynamic QR codes last only as long as the service that powers them. Here's how that works and how to avoid breakage.
+
+## Static QR Codes: They Don't Expire
+
+A static QR code encodes a fixed string: usually a URL, but it can be plain text, a vCard, or Wi‑Fi credentials. Once you generate it, that string is baked in. There's no server, no account, and no "turn off" switch. The code works until something external breaks: the webpage goes down, the domain changes without a redirect, or the link gets removed.
+
+Tools like our [free QR code generator](/) create static codes. You paste a URL, download the image, and you're done. The code doesn't phone home. It doesn't expire on a date. It will keep working as long as the destination URL still loads. For most use cases—menus, business cards, flyers, Wi‑Fi—static is enough and you never have to think about expiration.
+
+## Dynamic QR Codes: It Depends on the Provider
+
+Dynamic QR codes don't store the final URL in the pattern. They store a short redirect link that goes through a provider's server. When someone scans, the provider looks up where to send them and redirects. That means you can change the destination without reprinting—but it also means the code only works as long as the provider is running and your account is active.
+
+If the provider shuts down, gets acquired, or you stop paying, the redirect can break. Your printed code will still scan, but it might land on a dead link or an error page. So "how long do dynamic QR codes last?" is really "how long will this provider keep this redirect live?" For long-term print (signage, packaging, business cards), static is safer. Use dynamic when you need analytics or to change the destination often and you're okay depending on that provider. For a deeper comparison, see [Static vs Dynamic QR Codes: Which One Do You Need?](/blog/static-vs-dynamic-qr-codes).
+
+## What Actually Breaks a QR Code
+
+The code itself doesn't wear out or expire. What breaks is the destination.
+
+**Domain change without a redirect.** You move your site from oldsite.com to newsite.com. The QR code still points at oldsite.com. If you don't set up a redirect from the old URL to the new one, everyone who scans hits a dead or wrong site. Fix: add a 301 redirect from the old URL to the new one so the same code keeps working.
+
+**Link shortener or third-party redirect gone.** If your QR code points to a short link (e.g. bit.ly/xyz) and that service discontinues the link or the company shuts down, the code breaks. For anything you expect to use for years, use a URL you control on your own domain.
+
+**Page deleted or behind a login.** You remove the landing page or put it behind a sign-in. Scanners get a 404 or a login screen. The code is still "valid," but the experience is broken. Keep the URL live and publicly reachable if you want the code to keep working.
+
+**Login wall.** Some sites require sign-in before showing content. If the QR code points there, users see a login page instead of the content you intended. Use a URL that opens the content directly when possible.
+
+## How to Make Your QR Code Last
+
+Use a URL you control. Put the destination on your own domain (e.g. yoursite.com/menu or yoursite.com/promo) so you can set up redirects if you change structure or move. Avoid building long-term print campaigns on a shortener or a provider's URL unless you're sure they'll persist.
+
+Avoid third-party shorteners for permanent print. They're fine for campaigns you'll replace in a few months. For table tents, business cards, or signage you'll use for years, encode the full URL or a short path on your own domain.
+
+Test periodically. Scan the code every few months or after any site change. If the destination moved, add a redirect so the old URL still works. For a full pre-print checklist, see [How to Test a QR Code Before You Print Hundreds](/blog/how-to-test-qr-code-before-printing).
+
+Static QR codes don't expire; the link does. Use a URL you control, set up redirects when you change things, and your codes can last as long as you need. [Create a static QR code](/) for free—no account, no expiration.
+
+## FAQ
+
+**Do static QR codes expire?**  
+No. A static QR code encodes a fixed URL or other data. It has no expiration date and no server to turn it off. It works until the destination (e.g. the webpage) stops working—for example, if the page is removed or the domain changes without a redirect.
+
+**Do dynamic QR codes expire?**  
+They can. Dynamic codes rely on a provider's server to redirect to the current destination. If the provider shuts down, discontinues the link, or you stop paying, the code may break. Check the provider's terms and longevity before using dynamic codes for long-term print.
+
+**What happens if I change my domain?**  
+If your QR code points to a URL on the old domain, set up a 301 redirect from that old URL to the new one. Then the same printed code keeps working. Without a redirect, scanners will hit a dead or wrong page.
+
+**How do I make my QR code last?**  
+Use a URL you control on your own domain. Avoid relying on link shorteners or third-party redirect URLs for permanent print. When you change or move pages, add redirects so the old URL still resolves. Test the code periodically and after any site changes.
