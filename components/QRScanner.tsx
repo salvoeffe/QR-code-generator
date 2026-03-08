@@ -197,7 +197,15 @@ export default function QRScanner() {
   return (
     <div className="w-full max-w-xl mx-auto space-y-6">
       <canvas ref={canvasRef} className="hidden" aria-hidden />
-      <video ref={videoRef} className="hidden" playsInline muted aria-hidden />
+      <video
+        ref={videoRef}
+        playsInline
+        muted
+        aria-hidden
+        className={`w-full rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-black object-cover ${
+          cameraActive ? 'block aspect-video max-h-[50vh]' : 'hidden'
+        }`}
+      />
 
       <div
         onDrop={handleDrop}
@@ -225,7 +233,7 @@ export default function QRScanner() {
         </label>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-4">
         <button
           type="button"
           onClick={handleCamera}
@@ -237,13 +245,13 @@ export default function QRScanner() {
         >
           {cameraActive ? 'Stop camera' : 'Scan with Camera'}
         </button>
-      </div>
 
-      {cameraActive && (
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-500">
-          Point your camera at a QR code. Scanning automatically.
-        </p>
-      )}
+        {cameraActive && (
+          <p className="text-center text-sm text-zinc-500 dark:text-zinc-500">
+            Point your camera at a QR code. Scanning automatically.
+          </p>
+        )}
+      </div>
 
       {error && (
         <div
