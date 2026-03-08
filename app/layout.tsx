@@ -19,20 +19,20 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://generatemyqrcode.co
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Free QR Code Generator | Create QR Codes Online",
+    default: "Free QR Code Generator No Sign Up | Create QR Codes Online",
     template: "%s | QR Code Generator",
   },
   description:
-    "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text—fast and private. Download as PNG or SVG instantly.",
+    "Create a free QR code with no sign up. Get a QR code for your website, link, or text in seconds. Download as PNG or SVG. No account, no expiration.",
   openGraph: {
     title: "Free QR Code Generator | No Sign Up | Create QR Codes Online",
-    description: "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text. Download as PNG or SVG instantly.",
+    description: "Create a free QR code with no sign up. Get a QR code for your website, link, or text in seconds. Download as PNG or SVG. No account, no expiration.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Free QR Code Generator | No Sign Up | Create QR Codes Online",
-    description: "Free QR code generator with no sign up required. Create QR codes for your website, link, or any text. Download as PNG or SVG instantly.",
+    description: "Create a free QR code with no sign up. Get a QR code for your website, link, or text in seconds. Download as PNG or SVG. No account, no expiration.",
   },
   robots: {
     index: true,

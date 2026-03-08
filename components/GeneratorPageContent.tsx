@@ -21,8 +21,8 @@ export type HeroConfig = {
 
 const DEFAULT_HERO: HeroConfig = {
   title: 'Free QR Code Generator',
-  subtitle: 'No sign-up. No expiration. Instant download.',
-  description: 'Create QR codes for your website, link, or any text.',
+  subtitle: 'No sign up. No expiration. Instant download.',
+  description: 'Get a QR code for your website, link, or any text.',
 };
 
 type GeneratorPageContentProps = {
