@@ -13,13 +13,22 @@ export default function Header() {
   const isHome = pathname === '/';
   const isQRReader = pathname === '/qr-code-reader';
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY;
+      const y = window.scrollY ?? document.documentElement.scrollTop ?? 0;
       const mobile = window.innerWidth < MOBILE_BREAKPOINT;
 
+      // Only hide/show on mobile; desktop always shows header
       if (!mobile) {
         setHeaderVisible(true);
         lastScrollY.current = y;
@@ -36,6 +45,7 @@ export default function Header() {
       lastScrollY.current = y;
     };
 
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -48,11 +58,17 @@ export default function Header() {
     }`;
 
   return (
-    <header
-      className={`sticky top-0 z-50 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md shadow-[var(--shadow-sm)] transition-transform duration-300 ease-out max-sm:translate-y-0 ${
-        !headerVisible ? 'max-sm:-translate-y-full' : ''
-      }`}
-    >
+    <>
+      {/* Spacer so content starts below fixed header on mobile */}
+      <div className="h-[6.5rem] sm:hidden" aria-hidden />
+      <header
+        className="sticky top-0 z-50 max-sm:fixed max-sm:left-0 max-sm:right-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md shadow-[var(--shadow-sm)] transition-transform duration-300 ease-out"
+        style={
+          isMobile && !headerVisible
+            ? { transform: 'translateY(-100%)' }
+            : undefined
+        }
+      >
       <nav className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Link
           href="/"
@@ -86,5 +102,6 @@ export default function Header() {
         </div>
       </nav>
     </header>
+    </>
   );
 }
