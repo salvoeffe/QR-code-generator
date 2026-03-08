@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getPosts, getPostBySlug } from '@/lib/posts';
 import type { PostMeta } from '@/lib/posts';
-import { getPageContent } from '@/lib/content';
+import { getPageContent, SOLUTION_SLUGS } from '@/lib/content';
 import GeneratorPageContent from '@/components/GeneratorPageContent';
 import { BreadcrumbJsonLd } from '@/components/JsonLd';
 
@@ -10,6 +10,10 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://generatemyqrcode.co
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateStaticParams() {
+  return SOLUTION_SLUGS.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;

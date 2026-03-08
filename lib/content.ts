@@ -45,6 +45,9 @@ export const QR_SOLUTIONS: { slug: string; label: string }[] = [
   { slug: 'sms-qr-generator', label: 'SMS QR Code' },
 ];
 
+/** Slugs for solution pages (used by generateStaticParams) */
+export const SOLUTION_SLUGS = QR_SOLUTIONS.map((s) => s.slug);
+
 const CONTENT_TYPE_TO_SLUG: Record<ContentType, string> = {
   url: 'url',
   text: 'url',

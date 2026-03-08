@@ -121,7 +121,7 @@ export default function BlogIndexContent({
                 <li key={category}>
                   <a
                     href={`#${id}`}
-                    className="inline-block px-3 py-1.5 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                    className="inline-block px-3 py-1.5 rounded-full text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-zinc-900 dark:hover:text-zinc-100 hover:ring-1 hover:ring-emerald-500/30 transition-colors"
                   >
                     {category}
                   </a>

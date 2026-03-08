@@ -880,15 +880,17 @@ export default function QRGenerator({ initialContentType = 'url', onContentTypeC
         )}
 
         {!qrUrl && !loading && !error && !hasContent && (
-          <div className="flex flex-col items-center gap-4">
-            <img
-              src="/favicon.ico"
-              alt=""
-              className="h-16 w-16 opacity-30 dark:opacity-25"
-            />
-            <p className="text-zinc-400 dark:text-zinc-500 text-sm text-center">
-              Enter a URL or text above to generate your free QR code
-            </p>
+          <div className="flex flex-1 w-full items-center justify-center p-6">
+            <div className="flex flex-col items-center gap-4 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30 border border-zinc-200/60 dark:border-zinc-700/50 p-8 w-full max-w-sm">
+              <img
+                src="/favicon.ico"
+                alt=""
+                className="h-16 w-16 opacity-30 dark:opacity-25"
+              />
+              <p className="text-zinc-400 dark:text-zinc-500 text-sm text-center">
+                Enter a URL or text above to generate your free QR code
+              </p>
+            </div>
           </div>
         )}
         </div>

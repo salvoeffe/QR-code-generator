@@ -88,6 +88,26 @@ body {
   animation: heroFadeIn 0.5s ease-out;
 }
 
+/* Very subtle pattern for hero card (generator pages) — pattern only, not content */
+.hero-pattern {
+  position: relative;
+}
+.hero-pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0);
+  background-size: 20px 20px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  .hero-pattern::before {
+    opacity: 0.06;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
